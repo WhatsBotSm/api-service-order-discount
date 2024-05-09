@@ -1,20 +1,19 @@
 import { logger } from '../../funciones/utilerias/logger.js';
 import { getClient } from '../../configuraciones/config.db.js';
 
-export const getByIdDes = async function (id_descuento) {
+export const delByIdDes = async function (id_descuento) {
   console.log("getPedidoById", id_descuento);
   let client;
   try {
     client = await getClient();
 
-    const query = `SELECT id_descuento, id_client_admin_bot, idbot_control, created, updated, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo, id_producto
-    FROM orders_bot.descuentos
+    const query = `DELETE      FROM orders_bot.descuentos
     where id_descuento = $1;`;
 
     const resultado = await client.query(query, [id_descuento]);
     client.release();
 
-    return resultado.rows.length > 0 ? resultado.rows : [false];
+    return resultado.rows.length > 0 ? resultado.rows : [true];
   } catch (err) {
     if (client) client.release();
     logger.debug(err);
@@ -22,30 +21,20 @@ export const getByIdDes = async function (id_descuento) {
     return err;
   }
 }
-export const getByIdSus = async function (id_suscripcion) {
+export const delByIdSus = async function (id_suscripcion) {
   console.log("getPedidoByIdSus", id_suscripcion);
   let client;
   try {
     client = await getClient();
 
-    const query = `SELECT id_suscripcion,
-    id_client_admin_bot,
-    idbot_suscr,
-    id_prod_suscr,
-    id_paqu_suscr,
-    phone_suscr,
-    status_suscr,
-    comision,
-    descuento_id,
-    created,
-    updated
+    const query = `DELETE 
     FROM orders_bot.suscripciones_bot
     where id_suscripcion = $1;`;
 
     const resultado = await client.query(query, [id_suscripcion]);
     client.release();
 
-    return resultado.rows.length > 0 ? resultado.rows : [false];
+    return resultado.rows.length > 0 ? resultado.rows : [true];
   } catch (err) {
     if (client) client.release();
     logger.debug(err);
@@ -53,29 +42,20 @@ export const getByIdSus = async function (id_suscripcion) {
     return err;
   }
 }
-export const getByIdPag = async function (id_pago_suscr) {
+export const delByIdPag = async function (id_pago_suscr) {
   console.log("getPedidoByIdPag", id_pago_suscr);
   let client;
   try {
     client = await getClient();
 
-    const query = `SELECT id_pago_suscr,
-    id_suscripcion_bot,
-    folio,
-    fecha_pago,
-    concepto,
-    referencia,
-    cantidad_pago,
-    comision,
-    created,
-    updated
+    const query = `DELETE 
     FROM orders_bot.pagos_suscr_bot
-    where id_pago_suscr = $1;`;
+    where id_pago_suscr = $1`;
 
     const resultado = await client.query(query, [id_pago_suscr]);
     client.release();
 
-    return resultado.rows.length > 0 ? resultado.rows : [false];
+    return resultado.rows.length > 0 ? resultado.rows : [true];
   } catch (err) {
     if (client) client.release();
     logger.debug(err);

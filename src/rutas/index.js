@@ -10,7 +10,16 @@ router.post('/suscripcion', middlewares.validaHeaders,  controllers.inse.suscrip
 router.post('/descuentos', middlewares.validaHeaders,  controllers.inse.descuentos);
 /***************************/ 
 router.get('/consultarDes/:id_descuento', middlewares.validaHeaders,  controllers.consul.consultarDes);
+router.get('/consultarSus/:id_suscripcion', middlewares.validaHeaders,  controllers.consul.consultarSus);
+router.get('/consultarPag/:id_pago_suscr', middlewares.validaHeaders,  controllers.consul.consultarPag);
 /******************** */
-router.put('/descuentos/:id_descuento/:id_client_admin_bot', middlewares.validaHeaders,  controllers.cambiar.descuentos);
+router.put('/actDescuentos', middlewares.validaHeaders,  controllers.cambiar.actDescuentos);
+router.put('/actSuscripciones', middlewares.validaHeaders,  controllers.cambiar.actSuscripciones);
+router.put('/actPagosSus', middlewares.validaHeaders,  controllers.cambiar.actPagosSus);
+/***************************/ 
+router.delete('/borrarDes/:id_descuento', middlewares.validaHeaders,  controllers.borrar.borrarDes);
+router.delete('/borrarSus/:id_suscripcion', middlewares.validaHeaders,  controllers.borrar.borrarSus);
+router.delete('/borrarPag/:id_pago_suscr', middlewares.validaHeaders,  controllers.borrar.borrarPag);
+/******************** */
 //middlewares.verificaToken,
 export default router;

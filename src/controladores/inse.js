@@ -23,7 +23,7 @@ import dao from '../dao/pedido/index.js';
       referencia: punto.referencia,
       cantidad_pago: punto.cantidad_pago,
       comision: punto.comision,
-      created: punto.created,
+      //created: punto.created,
       updated: punto.updated
       
     };
@@ -59,7 +59,7 @@ import dao from '../dao/pedido/index.js';
       status_suscr: punto.status_suscr,
       comision: punto.comision,
       descuento_id: punto.descuento_id,
-      created: punto.created,
+      //created: punto.created,
       updated: punto.updated
     };
     let resBD = await dao.insertSuscripcion(punto);
@@ -87,7 +87,7 @@ import dao from '../dao/pedido/index.js';
       id_descuento: punto.id_descuento,
       id_client_admin_bot: punto.id_client_admin_bot,
       idbot_control: punto.idbot_control,
-      created: punto.created,
+      //created: punto.created,
       updated: punto.updated,
       nombre: params.header.identificador_usuario,
       descripcion: punto.descripcion,
