@@ -1,10 +1,9 @@
 import respJSON from '../configuraciones/respuesta.js'
 import { HTTP_CODIGOS } from '../configuraciones/codigos_http.js';
 // import * as servicios from '../servicios/microservicios.js';
-import dao from '../dao/pedido/index.js';
+import dao from '../dao/descuentos/index.js';
 
-  /********************************************* */
-  export const pagosuscripcion = async (req, res) => {
+export const consultarDes = async (req, res) => {
     let params = {
       query: req.query,
       path: req.params,
@@ -12,68 +11,20 @@ import dao from '../dao/pedido/index.js';
       header: req.headers
     }
   
-    let punto = { ...params.body.punto };
-    console.log("punto : ", punto)
-    punto = {
-      //id_pago_suscr: punto.id_pago_suscr,
-      id_suscripcion_bot: punto.id_suscripcion_bot,
-      folio: params.header.identificador_usuario,
-      fecha_pago: punto.fecha_pago,
-      concepto: punto.concepto,
-      referencia: punto.referencia,
-      cantidad_pago: punto.cantidad_pago,
-      comision: punto.comision,
-      //created: punto.created,
-      updated: punto.updated
-      
-    };
-    let resBD = await dao.insertPago(punto);
+    let id_descuento = params.path.id_descuento;
+    console.log("id_descuento : ", id_descuento)
+    let resBD = await dao.getByIdDes(id_descuento);
   
     let respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: punto,
-      resBD
+      resultado: resBD
     }
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
-  }
-  export const suscripcion = async (req, res) => {
-    let params = {
-      query: req.query,
-      path: req.params,
-      body: req.body,
-      header: req.headers
-    }
-  
-    let punto = { ...params.body.punto };
-    console.log("punto : ", punto)
-    punto = {
-  
-      //id_suscripcion: punto.id_suscripcion,
-      id_client_admin_bot: punto.id_client_admin_bot,
-      idbot_suscr: punto.idbot_suscr,
-      id_prod_suscr: punto.id_prod_suscr,
-      id_paqu_suscr: punto.id_paqu_suscr,
-      phone_suscr: params.header.identificador_usuario,
-      status_suscr: punto.status_suscr,
-      comision: punto.comision,
-      descuento_id: punto.descuento_id,
-      //created: punto.created,
-      updated: punto.updated
-    };
-    let resBD = await dao.insertSuscripcion(punto);
-  
-    let respuesta = {
-      ...respJSON,
-      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
-      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: punto,
-      resBD
-    }
-    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
-  }
-  export const descuentos = async (req, res) => {
+}
+
+export const descuentos = async (req, res) => {
     let params = {
       query: req.query,
       path: req.params,
@@ -108,6 +59,60 @@ import dao from '../dao/pedido/index.js';
       resBD
     }
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
-  }
+}
+export const actDescuentos = async (req, res) => {
+    let params = {
+      query: req.query,
+      path: req.params,
+      body: req.body,
+      header: req.headers
+    }
   
-  /******************************************************* */
+    let punto = { ...params.body.punto };
+    console.log("punto : ", punto)
+    punto = {
+      id_descuento: punto.id_descuento,
+      id_client_admin_bot: punto.id_client_admin_bot,
+      idbot_control: punto.idbot_control,
+      //created: punto.created,
+      //updated: punto.updated,
+      nombre: punto.nombre,
+      descripcion: punto.descripcion,
+      tipo_descuento: punto.tipo_descuento,
+      valor: punto.valor,
+      fecha_inicio: punto.fecha_inicio,
+      fecha_fin: punto.fecha_fin,
+      codigo: punto.codigo,
+      id_producto: punto.id_producto
+    };
+    let resBD = await dao.updateDes(punto);
+  
+    let respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
+      resultado: punto,
+      resBD
+    }
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
+  }
+export const borrarDes = async (req, res) => {
+    let params = {
+      query: req.query,
+      path: req.params,
+      body: req.body,
+      header: req.headers
+    }
+  
+    let id_descuento = params.path.id_descuento;
+    console.log("id_descuento : ", id_descuento)
+    let resBD = await dao.delByIdDes(id_descuento);
+  
+    let respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
+      resultado: resBD
+    }
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
+}

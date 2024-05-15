@@ -1,7 +1,6 @@
-import pedido from './pedido/index.js';
-import persona from './persona/index.js';
+import descuentos from './descuentos/index.js';
 
 export default {
-  pedido, persona
+  descuentos
 };
 
