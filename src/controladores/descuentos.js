@@ -39,7 +39,7 @@ export const descuentos = async (req, res) => {
       id_client_admin_bot: punto.id_client_admin_bot,
       idbot_control: punto.idbot_control,
       //created: punto.created,
-      updated: punto.updated,
+      //updated: punto.updated,
       nombre: params.header.identificador_usuario,
       descripcion: punto.descripcion,
       tipo_descuento: punto.tipo_descuento,
@@ -67,11 +67,11 @@ export const actDescuentos = async (req, res) => {
       body: req.body,
       header: req.headers
     }
-  
+    let id_descuento = params.path.id_descuento;
     let punto = { ...params.body.punto };
     console.log("punto : ", punto)
     punto = {
-      id_descuento: punto.id_descuento,
+      id_descuento: id_descuento,
       id_client_admin_bot: punto.id_client_admin_bot,
       idbot_control: punto.idbot_control,
       //created: punto.created,

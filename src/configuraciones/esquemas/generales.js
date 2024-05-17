@@ -31,4 +31,57 @@ const bodyEsquema = {
     ]
 };
 
-export default { headerEsquema, bodyEsquema }
+const descuentosEsquema = {
+    "type": "object",
+    "properties": {
+        "id_descuento": {
+            "type": "integer"
+        },
+        "id_client_admin_bot": {
+            "type": "integer"
+        },
+        "idbot_control": {
+            "type": "integer"
+        },
+        "descripcion": {
+            "type": "string",
+            "pattern": regexPatternString,
+        },
+        "tipo_descuento": {
+            "type": "string",
+            "pattern": regexPatternString,
+        },
+        "valor": {
+            "type": "integer"
+        },
+        "fecha_inicio": {
+            "type": "string",
+            "pattern": regexPatternString,
+        },
+        "fecha_fin": {
+            "type": "string",
+            "pattern": regexPatternString,
+        },
+        "codigo": {
+            "type": "string",
+            "pattern": regexPatternString,
+        },
+        "id_producto": {
+            "type": "integer"
+        },
+    },
+    "required": [
+        "id_descuento",
+        "id_client_admin_bot",
+        "idbot_control",
+        "descripcion",
+        "tipo_descuento",
+        "valor",
+        "fecha_inicio",
+        "fecha_fin",
+        "codigo",
+        "id_producto"
+    ]
+};
+
+export default { headerEsquema, bodyEsquema, descuentosEsquema }

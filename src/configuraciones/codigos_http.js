@@ -36,6 +36,10 @@ export const HTTP_CODIGOS = {
         codigo: "011",
         mensaje: "Esquema inválido",
       },
+      _012: {
+        codigo: "012",
+        mensaje: "Body inválido",
+      },
     },
   },
   _401: {

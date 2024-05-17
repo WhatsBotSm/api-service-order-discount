@@ -8,8 +8,8 @@ export const insertDescuento = async function (pedido) {
     try {
         client = await getClient();
 
-        const query = `INSERT INTO orders_bot.descuentos (id_descuento, id_client_admin_bot, idbot_control, created, updated, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo, id_producto) VALUES
-        ($1,$2,$3,CURRENT_TIMESTAMP,$4,$5,$6,$7,$8,$9,$10,$11,$12)`;
+        const query = `INSERT INTO orders_bot.descuentos (id_descuento, id_client_admin_bot, idbot_control, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo, id_producto) VALUES
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
 
         const resultado = await client.query(query, values);
         client.release();
