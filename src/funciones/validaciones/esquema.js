@@ -61,7 +61,7 @@ const validarParametros = async function (bodyJson, dato) {
     return respuesta;
 }
 
-const validar = async function (bodyJson, esquema) {
+const validarSchema = async function (bodyJson, esquema) {
     const detalles = [];
     const ajv = new Ajv({
         allErrors: true
@@ -79,4 +79,4 @@ const validar = async function (bodyJson, esquema) {
     };
 };
 
-export default { validarParametros, validaParametrosGrl, validar }
+export default { validarParametros, validaParametrosGrl, validarSchema }

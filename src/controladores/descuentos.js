@@ -1,6 +1,8 @@
 import respJSON from '../configuraciones/respuesta.js'
 import { HTTP_CODIGOS } from '../configuraciones/codigos_http.js';
 // import * as servicios from '../servicios/microservicios.js';
+import esquema from '../funciones/validaciones/esquema.js';
+import bodys from '../configuraciones/esquemas/generales.js';
 import dao from '../dao/descuentos/index.js';
 
 export const consultarDes = async (req, res) => {
@@ -31,15 +33,24 @@ export const descuentos = async (req, res) => {
       body: req.body,
       header: req.headers
     }
-  
+    let respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+    }
     let punto = { ...params.body.punto };
     console.log("punto : ", punto)
+    const resBody = esquema.validar(punto, bodys.descuentosEsquema)
+    if (resBody.error) {
+        respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
+        respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
+        respuesta.errores = resBody.error;
+        res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+    }   
     punto = {
       id_descuento: punto.id_descuento,
       id_client_admin_bot: punto.id_client_admin_bot,
       idbot_control: punto.idbot_control,
-      //created: punto.created,
-      //updated: punto.updated,
       nombre: params.header.identificador_usuario,
       descripcion: punto.descripcion,
       tipo_descuento: punto.tipo_descuento,
@@ -51,7 +62,7 @@ export const descuentos = async (req, res) => {
     };
     let resBD = await dao.insertDescuento(punto);
   
-    let respuesta = {
+    respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
