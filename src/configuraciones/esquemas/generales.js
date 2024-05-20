@@ -34,9 +34,6 @@ const bodyEsquema = {
 const descuentosEsquema = {
     "type": "object",
     "properties": {
-        "id_descuento": {
-            "type": "integer"
-        },
         "id_client_admin_bot": {
             "type": "integer"
         },
@@ -71,7 +68,6 @@ const descuentosEsquema = {
         },
     },
     "required": [
-        "id_descuento",
         "id_client_admin_bot",
         "idbot_control",
         "descripcion",

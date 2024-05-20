@@ -13,7 +13,7 @@ const validaHeaders = async (req, res, next) => {
         "headers": req.headers
     };
     logger.debug('Parametros:' + JSON.stringify(parametros));
-    const respuesta = await esquema.validar(req.headers, headers.headerEsquema);
+    const respuesta = await esquema.validarSchema(req.headers, headers.headerEsquema);
     const respApiJson = { ...respJSON }
     if (respuesta.error) {
         respApiJson.codigo = HTTP_CODIGOS._400.contexto._010.codigo;

@@ -40,12 +40,13 @@ export const descuentos = async (req, res) => {
     }
     let punto = { ...params.body.punto };
     console.log("punto : ", punto)
-    const resBody = esquema.validar(punto, bodys.descuentosEsquema)
+    const resBody = await esquema.validarSchema(punto, bodys.descuentosEsquema)
     if (resBody.error) {
         respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
         respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
         respuesta.errores = resBody.error;
         res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+        return
     }   
     punto = {
       id_descuento: punto.id_descuento,
@@ -78,15 +79,31 @@ export const actDescuentos = async (req, res) => {
       body: req.body,
       header: req.headers
     }
+    let respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+    }
     let id_descuento = params.path.id_descuento;
     let punto = { ...params.body.punto };
     console.log("punto : ", punto)
+    const resBody = await esquema.validarSchema(punto, bodys.descuentosEsquema); // Espera a que se resuelva la promesa
+
+if (resBody.error) {
+    respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
+    respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
+    respuesta.errores = resBody.error;
+    return res.status(HTTP_CODIGOS._400.estatus).send(respuesta); // Retorna para salir de la función
+}   
+
+// Resto de tu código aquí
+ 
+    console.log("resBody : ", resBody)
+    console.log("respuesta",respuesta)
     punto = {
       id_descuento: id_descuento,
       id_client_admin_bot: punto.id_client_admin_bot,
       idbot_control: punto.idbot_control,
-      //created: punto.created,
-      //updated: punto.updated,
       nombre: punto.nombre,
       descripcion: punto.descripcion,
       tipo_descuento: punto.tipo_descuento,
@@ -98,7 +115,7 @@ export const actDescuentos = async (req, res) => {
     };
     let resBD = await dao.updateDes(punto);
   
-    let respuesta = {
+    respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
