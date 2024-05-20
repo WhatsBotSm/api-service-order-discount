@@ -1,13 +1,14 @@
 export default {
    "conexion": {
       "database_config_pg": {
-         "host": "localhost",
+         "user": "dev4",
+         "password": "gk2=hC&AIlaXs}V",
          "database": "whatsbotsm",
-         "user": "crivasf",
-         "password": "cr1v4sf2023",
-         "port": 5432
+         "server": '192.168.1.65' ,
+         "puerto": 5432,
+         "máx": 10,
+         "mín": 0,
+         "idleTimeoutMillis": 30000,      
       }
-   },
-   "SignatureCer": "00000100000199901097.pfx",
-   "CertSignatureKey": "12345"
+   }
 }

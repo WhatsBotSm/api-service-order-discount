@@ -10,8 +10,8 @@ import rateLimit from 'express-rate-limit'
 import routes from './src/rutas/index.js';
 import { stream } from "./src/funciones/utilerias/logger.js";
 import swaggerDocument from './swagger.js';
-const puerto = process.env.port || 8080;
-const baseApi = process.env.BASE_API || 'apibsm/service/v1';
+const puerto = process.env.port || 8091;
+const baseApi = process.env.BASE_API || 'api/service/v1';
 const NUM_REQ_MAX_API = Number(process.env.NUM_REQ_MAX_API) || 25;
 
 const apiRequestLimiter = rateLimit({
