@@ -8,13 +8,13 @@ export const insertDescuento = async function (pedido) {
     try {
         client = await getClient();
 
-        const query = `INSERT INTO orders_bot.descuentos (id_descuento, id_client_admin_bot, idbot_control, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo, id_producto) VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`;
+        const query = `INSERT INTO orders_bot.descuentos (id_client_admin_bot, idbot_control, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo) VALUES
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id_descuento`;
 
         const resultado = await client.query(query, values);
         client.release();
 
-        return resultado.rowCount > 0;
+        return resultado.rowCount > 0 ? resultado.rows : [false];
 
     } catch (err) {
         if (client) client.release();

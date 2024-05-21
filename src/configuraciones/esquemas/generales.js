@@ -37,9 +37,6 @@ const descuentosEsquema = {
         "id_client_admin_bot": {
             "type": "integer"
         },
-        "idbot_control": {
-            "type": "integer"
-        },
         "descripcion": {
             "type": "string",
             "pattern": regexPatternString,
@@ -55,28 +52,19 @@ const descuentosEsquema = {
             "type": "string",
             "pattern": regexPatternString,
         },
-        "fecha_fin": {
-            "type": "string",
-            "pattern": regexPatternString,
-        },
+        
         "codigo": {
             "type": "string",
             "pattern": regexPatternString,
-        },
-        "id_producto": {
-            "type": "integer"
-        },
+        }
     },
     "required": [
         "id_client_admin_bot",
-        "idbot_control",
         "descripcion",
         "tipo_descuento",
         "valor",
         "fecha_inicio",
-        "fecha_fin",
-        "codigo",
-        "id_producto"
+        "codigo"
     ]
 };
 

@@ -17,8 +17,7 @@ export const updateDes = async function (cita) {
         valor=$7,
         fecha_inicio=$8,
         fecha_fin=$9,
-        codigo=$10,
-        id_producto=$11
+        codigo=$10
         WHERE id_descuento=$1`;
 
         const resultado = await client.query(query, values);

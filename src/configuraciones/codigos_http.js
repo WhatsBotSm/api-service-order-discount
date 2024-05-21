@@ -40,6 +40,10 @@ export const HTTP_CODIGOS = {
         codigo: "012",
         mensaje: "Body inválido",
       },
+      _013: {
+        codigo: "013",
+        mensaje: "Error al registrar desc",
+      },
     },
   },
   _401: {
