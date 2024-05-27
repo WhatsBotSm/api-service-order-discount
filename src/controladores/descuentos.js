@@ -1,57 +1,69 @@
-import respJSON from '../configuraciones/respuesta.js'
-import { HTTP_CODIGOS } from '../configuraciones/codigos_http.js';
+import respJSON from "../configuraciones/respuesta.js";
+import { HTTP_CODIGOS } from "../configuraciones/codigos_http.js";
 // import * as servicios from '../servicios/microservicios.js';
-import esquema from '../funciones/validaciones/esquema.js';
-import bodys from '../configuraciones/esquemas/generales.js';
-import dao from '../dao/descuentos/index.js';
+import esquema from "../funciones/validaciones/esquema.js";
+import bodys from "../configuraciones/esquemas/generales.js";
+import dao from "../dao/descuentos/index.js";
 
 export const consultarDes = async (req, res) => {
+  try {
     let params = {
       query: req.query,
       path: req.params,
       body: req.body,
       header: req.headers
-    }
-  
+    };
+
     let id_descuento = params.path.id_descuento;
-    console.log("id_descuento : ", id_descuento)
+    console.log("id_descuento : ", id_descuento);
     let resBD = await dao.getByIdDes(id_descuento);
-  
+
     let respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
       resultado: resBD
-    }
-    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
-}
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
 
 export const descuentos = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
+  try {
     let params = {
       query: req.query,
       path: req.params,
       body: req.body,
       header: req.headers
-    }
-    let respuesta = {
-      ...respJSON,
-      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
-      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
-    }
+    };
+
     let descount = { ...params.body.descount };
-    console.log("descount : ", descount)
-    const resBody = await esquema.validarSchema(descount, bodys.descuentosEsquema)
+    console.log("descount : ", descount);
+    const resBody = await esquema.validarSchema(descount, bodys.descuentosEsquema);
     if (resBody.error) {
-        respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
-        respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
-        respuesta.errores = resBody.error;
-        res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
-        return
-    }   
+      respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
+      respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
+      respuesta.errores = resBody.error;
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
     descount = {
       id_client_admin_bot: descount.id_client_admin_bot,
-      idbot_control: descount.idbot_control,
-      nombre: params.header.identificador_usuario,
+      idbot_control: params.header.identificador_usuario,
+      nombre: descount.nombre,
       descripcion: descount.descripcion,
       tipo_descuento: descount.tipo_descuento,
       valor: descount.valor,
@@ -59,51 +71,84 @@ export const descuentos = async (req, res) => {
       fecha_fin: descount.fecha_fin,
       codigo: descount.codigo
     };
+    let values = { ...params.body.values };
+    values = {
+      nombre: descount.nombre,
+      descripcion: descount.descripcion,
+      tipo_descuento: descount.tipo_descuento,
+      valor: descount.valor,
+      codigo: descount.codigo
+    };
+    const valueArray = Object.values(values);
+    const joinedValues = valueArray.join("  |  ");
     let [resBD] = await dao.insertDescuento(descount);
+    let bitdescu = { ...params.body.bitdescu };
+    console.log("bitdescuentos", bitdescu);
+    bitdescu = {
+      idbot: params.header.identificador_usuario,
+      id_descuento: resBD.id_descuento,
+      action_prod: "Nuevo descuento",
+      justy_change: "Insercion",
+      name_col: "",
+      lt_value: "",
+      pt_value: joinedValues
+    };
+    let resBDbit = await dao.insertBitDescu(bitdescu);
 
-    if(!resBD){
+    if (!resBD) {
       respuesta = {
         ...respJSON,
         codigo: HTTP_CODIGOS._400.contexto._013.codigo,
         mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
-        resultado: descount,
-      }
-      res.status(HTTP_CODIGOS._400.estatus).send(respuesta)
+        resultado: descount
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
-  
+
     respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: {...resBD, ...descount},
-    }
-    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
-}
+      resultado: { ...resBD, ...descount, ...resBDbit }
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: HTTP_CODIGOS._400.contexto._013.mensaje
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
 export const actDescuentos = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
+  try {
     let params = {
       query: req.query,
       path: req.params,
       body: req.body,
       header: req.headers
-    }
-    let respuesta = {
-      ...respJSON,
-      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
-      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
-    }
+    };
     let id_descuento = params.path.id_descuento;
     let descount = { ...params.body.descount };
-    console.log("descount : ", descount)
+    console.log("descount : ", descount);
     const resBody = await esquema.validarSchema(descount, bodys.descuentosEsquema);
 
-if (resBody.error) {
-    respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
-    respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
-    respuesta.errores = resBody.error;
-    return res.status(HTTP_CODIGOS._400.estatus).send(respuesta); 
-}   
-    console.log("resBody : ", resBody)
+    if (resBody.error) {
+      respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
+      respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
+      respuesta.errores = resBody.error;
+      return res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+    }
+    let [descOrig] = await dao.getDescuent(id_descuento);
+    console.log("resBody : ", resBody);
     descount = {
       id_descuento: id_descuento,
       id_client_admin_bot: descount.id_client_admin_bot,
@@ -116,34 +161,93 @@ if (resBody.error) {
       fecha_fin: descount.fecha_fin,
       codigo: descount.codigo
     };
+    let values = {
+      nombre: descount.nombre,
+      descripcion: descount.descripcion,
+      tipo_descuento: descount.tipo_descuento,
+      valor: descount.valor,
+      codigo: descount.codigo
+    };
+    const joinedValuesPast = Object.values(descOrig).join(" | ");
+    const joinedValuesLast = Object.values(values).join(" | ");
+    const diferencias = compararObjetosDetalles(descOrig, values);
+    console.log(diferencias);
     let resBD = await dao.updateDes(descount);
-  
+    let bitdescu = { ...params.body.bitdescu };
+    bitdescu = {
+      idbot: descount.idbot_control,
+      id_descuento: id_descuento,
+      action_prod: "Actualizacion",
+      justy_change: "actualizacion",
+      name_col: diferencias.join(" | "),
+      lt_value: joinedValuesPast,
+      pt_value: joinedValuesLast
+    };
+
+    let resBDbit = await dao.insertBitDescu(bitdescu);
+
     respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: descount,
-      resBD
-    }
-    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
+      resultado: {...resBD, ...descount, ...resBDbit} 
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
   }
+};
 export const borrarDes = async (req, res) => {
+  try {
     let params = {
       query: req.query,
       path: req.params,
       body: req.body,
       header: req.headers
-    }
-  
+    };
+
     let id_descuento = params.path.id_descuento;
-    console.log("id_descuento : ", id_descuento)
+    console.log("id_descuento : ", id_descuento);
     let resBD = await dao.delByIdDes(id_descuento);
-  
+
     let respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
       resultado: resBD
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
+function compararObjetosDetalles(obj1, obj2) {
+  const diferencias = [];
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  // Asegurar que ambos objetos tengan las mismas claves
+  const allKeys = new Set([...keys1, ...keys2]);
+
+  allKeys.forEach((key) => {
+    if (obj1[key] !== obj2[key]) {
+      diferencias.push(key);
     }
-    res.status(HTTP_CODIGOS._200.estatus).send(respuesta)
+  });
+
+  return diferencias;
 }
+

@@ -37,6 +37,10 @@ const descuentosEsquema = {
         "id_client_admin_bot": {
             "type": "integer"
         },
+        "nombre": {
+            "type": "string",
+            "pattern": regexPatternString,
+        },
         "descripcion": {
             "type": "string",
             "pattern": regexPatternString,
@@ -60,10 +64,10 @@ const descuentosEsquema = {
     },
     "required": [
         "id_client_admin_bot",
+        "nombre",
         "descripcion",
         "tipo_descuento",
         "valor",
-        "fecha_inicio",
         "codigo"
     ]
 };
