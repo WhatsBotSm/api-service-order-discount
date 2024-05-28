@@ -1,0 +1,20 @@
+{
+    "SimpleHeader": {
+        "body": {
+            "requerido": false,
+            "valor": "bodyEsquema"
+        },
+        "header": {
+            "requerido": true,
+            "valor": "headerEsquema"
+        },
+        "query": {
+            "requerido": false,
+            "valor": "query_esquema"
+        },
+        "body_update": {
+            "requerido": false,
+            "valor": "body_update"
+        }
+    }
+}
