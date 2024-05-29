@@ -6,6 +6,11 @@ import bodys from "../configuraciones/esquemas/generales.js";
 import dao from "../dao/descuentos/index.js";
 
 export const consultarDes = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
   try {
     let params = {
       query: req.query,
@@ -18,7 +23,7 @@ export const consultarDes = async (req, res) => {
     console.log("id_descuento : ", id_descuento);
     let resBD = await dao.getByIdDes(id_descuento);
 
-    let respuesta = {
+    respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
@@ -204,6 +209,11 @@ export const actDescuentos = async (req, res) => {
   }
 };
 export const borrarDes = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
   try {
     let params = {
       query: req.query,
@@ -216,7 +226,7 @@ export const borrarDes = async (req, res) => {
     console.log("id_descuento : ", id_descuento);
     let resBD = await dao.delByIdDes(id_descuento);
 
-    let respuesta = {
+    respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
@@ -234,20 +244,27 @@ export const borrarDes = async (req, res) => {
   }
 };
 function compararObjetosDetalles(obj1, obj2) {
-  const diferencias = [];
+  try {
+    const diferencias = []; 
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+    const allKeys = new Set([...keys1, ...keys2]);
 
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
+    allKeys.forEach((key) => {
+      if (obj1[key] !== obj2[key]) {
+        diferencias.push(key);
+      }
+    });
+    return diferencias;
 
-  // Asegurar que ambos objetos tengan las mismas claves
-  const allKeys = new Set([...keys1, ...keys2]);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
 
-  allKeys.forEach((key) => {
-    if (obj1[key] !== obj2[key]) {
-      diferencias.push(key);
-    }
-  });
-
-  return diferencias;
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
 }
 
