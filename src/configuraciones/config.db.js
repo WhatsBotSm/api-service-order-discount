@@ -1,37 +1,28 @@
 import pkg from 'pg';
 const { Pool } = pkg;
-const pools = new Map();
+const pool = { conexion: {} };
+const environment = process.env.NODE_ENV || "local";
+const namePool = 'api-service-order-' + environment
 const dbConfig = global.gConfig.database_config_pg;
-const namePool = 'api-service-order'
+
+const getPool = (strPool) => {
+  const credentials = environment === "local" ? dbConfig : { connectionString: dbConfig.stringConnection };
+  if (!credentials) {
+    throw new Error('Pool does not credentials');
+  }
+  if (!pool.conexion[strPool]) {
+    pool.conexion[strPool] = new Pool(credentials);
+  }
+};
 
 /**
- * @param {string} namePool
+ * @param {string}  strPool
  * @param  [dbConfig]
  * @return {Promise.<mssql.ConnectionPool>}
  */
-export const getClient = () => {
- 
-    if (!dbConfig) {
-      throw new Error('Pool does not exist');
-    }
-    console.log(dbConfig)
-    const pool = new Pool(dbConfig);
-    // automatically remove the pool from the cache if `pool.release()` is called
-    /*const release = pool.release.bind(pool);
-    pool.release = (...args) => {
-      pools.delete(namePool);
-      return release(...args);
-    }*/
-    //pools.set(namePool, pool.connect());
-    console.log("conexion exitosa")
-  
-  return pool.connect();
+export const getClient = (strPool) => {
+  let poolQuery = strPool || namePool;
+  getPool(poolQuery);
+  console.log(poolQuery)
+  return pool.conexion[poolQuery].connect();
 }
-/**
- * releases all the pools and removes them from the store
- *
- * @return {Promise<mssql.ConnectionPool[]>}
- */
-export const releaseAll = () => Promise.all(Array.from(pools.values()).map((connect) => {
-  return connect.then((pool) => pool.release());
-}))

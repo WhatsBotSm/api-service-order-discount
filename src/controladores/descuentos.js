@@ -22,6 +22,15 @@ export const consultarDes = async (req, res) => {
     let id_descuento = params.path.id_descuento;
     console.log("id_descuento : ", id_descuento);
     let resBD = await dao.getByIdDes(id_descuento);
+    if (!resBD || resBD.length === 0 || resBD[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._000.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._000.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
 
     respuesta = {
       ...respJSON,
