@@ -49,6 +49,41 @@ export const consultarDes = async (req, res) => {
     res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
   }
 };
+export const consultarTodoDes = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
+  try {
+    let resBD = await dao.getTodoDes();
+    if (!resBD || resBD.length === 0 || resBD[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._000.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._000.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+
+    respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
+      resultado: resBD
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
 
 export const descuentos = async (req, res) => {
   let respuesta = {
