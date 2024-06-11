@@ -4,7 +4,7 @@ import controllers from '../controladores/index.js';
 const router = express.Router();
 
 /*********************** */
-router.post('/descuentos', middlewares.validaHeaders, controllers.descuentos.descuentos);
+router.post('/descuento', middlewares.validaHeaders, controllers.descuentos.descuentos);
 /***************************/ 
 router.get('/descuento/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.consultarDes);
 /******************** */
