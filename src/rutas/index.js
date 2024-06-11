@@ -6,9 +6,9 @@ const router = express.Router();
 /*********************** */
 router.post('/descuentos', middlewares.validaHeaders, controllers.descuentos.descuentos);
 /***************************/ 
-router.get('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.consultarDes);
+router.get('/descuento/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.consultarDes);
 /******************** */
-router.put('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.actDescuentos);
+router.put('/descuento/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.actDescuentos);
 /***************************/ 
 router.delete('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.borrarDes);
 /******************** */

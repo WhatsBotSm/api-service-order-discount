@@ -197,6 +197,15 @@ export const actDescuentos = async (req, res) => {
       return res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
     }
     let [descOrig] = await dao.getDescuent(id_descuento);
+    if (!descOrig) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
     console.log("resBody : ", resBody);
     descount = {
       id_descuento: id_descuento,
@@ -222,6 +231,15 @@ export const actDescuentos = async (req, res) => {
     const diferencias = compararObjetosDetalles(descOrig, values);
     console.log(diferencias);
     let resBD = await dao.updateDes(descount);
+    if (!resBD) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
     let bitdescu = { ...params.body.bitdescu };
     bitdescu = {
       idbot: descount.idbot_control,
