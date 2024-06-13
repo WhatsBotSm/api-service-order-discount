@@ -109,6 +109,13 @@ export const descuentos = async (req, res) => {
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
+    if (new Date(resBody.fecha_inicio) > new Date(resBody.fecha_fin) || new Date(resBody.fecha_inicio) < new Date()) {
+      respuesta.codigo = HTTP_CODIGOS._400.contexto._013.codigo;
+      respuesta.mensaje = HTTP_CODIGOS._400.contexto._013.mensaje;
+      respuesta.errores = resBody.error;
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
     descount = {
       id_client_admin_bot: descount.id_client_admin_bot,
       idbot_control: params.header.identificador_usuario,
@@ -206,6 +213,14 @@ export const actDescuentos = async (req, res) => {
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
+    if (new Date(resBody.fecha_inicio) > new Date(resBody.fecha_fin) || new Date(resBody.fecha_inicio) < new Date()) {
+      respuesta.codigo = HTTP_CODIGOS._400.contexto._013.codigo;
+      respuesta.mensaje = HTTP_CODIGOS._400.contexto._013.mensaje;
+      respuesta.errores = resBody.error;
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+
     console.log("resBody : ", resBody);
     descount = {
       id_descuento: id_descuento,
@@ -215,8 +230,8 @@ export const actDescuentos = async (req, res) => {
       descripcion: descount.descripcion,
       tipo_descuento: descount.tipo_descuento,
       valor: descount.valor,
-      fecha_inicio: descount.fecha_inicio,
-      fecha_fin: descount.fecha_fin,
+      fecha_inicio: descount.fecha_inicio || new Date(),
+      fecha_fin: descount.fecha_fin || new Date(),
       codigo: descount.codigo
     };
     let values = {

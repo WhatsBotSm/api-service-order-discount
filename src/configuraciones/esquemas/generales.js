@@ -57,18 +57,13 @@ const descuentosEsquema = {
             "pattern": regexPatternString,
         },
         
-        "codigo": {
-            "type": "string",
-            "pattern": regexPatternString,
-        }
     },
     "required": [
         "id_client_admin_bot",
         "nombre",
         "descripcion",
         "tipo_descuento",
-        "valor",
-        "codigo"
+        "valor"
     ]
 };
 

@@ -12,6 +12,6 @@ router.put('/descuento/:id_descuento', middlewares.validaHeaders,  controllers.d
 /***************************/ 
 router.delete('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.borrarDes);
 /******************** */
-router.get('/descuentos', middlewares.validaHeaders,  controllers.descuentos.consultarTodoDes);
+router.get('/descuento', middlewares.validaHeaders,  controllers.descuentos.consultarTodoDes);
 //middlewares.verificaToken,
 export default router;
