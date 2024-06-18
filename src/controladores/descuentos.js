@@ -87,6 +87,7 @@ export const consultarTodoDes = async (req, res) => {
   }
 };
 
+
 export const descuentos = async (req, res) => {
   let respuesta = {
     ...respJSON,
