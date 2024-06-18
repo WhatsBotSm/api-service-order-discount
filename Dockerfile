@@ -25,5 +25,6 @@ RUN npm install --omit=dev
 # Bundle app source
 COPY --chmod=777 . ./
 
-EXPOSE 8091
-CMD [ "pm2-runtime", "start", "api-service-order-pm2.cjs" ]
+# EXPOSE 8091
+# CMD [ "pm2-runtime", "start", "api-service-order-pm2.cjs" ]
+CMD [ "npm", "start" ]
