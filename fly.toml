@@ -7,7 +7,7 @@ primary_region = "qro"
 processes = []
 
 [env]
-  PORT = 8080
+  PORT = "8080"
   NODE_ENV = "production"
   API_URL_ALERTA="VALUE_API_URL_ALERTA"
 
