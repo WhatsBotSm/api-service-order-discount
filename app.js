@@ -61,13 +61,9 @@ app.use(function (req, res, next) {
 morgan.token('header', (req) => JSON.stringify(req.headers));
 morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }))
-
-app.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Pedidos!'));
-
 app.use(baseApi, routes);
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 console.log(baseApi)
+
 app.listen(puerto, () => console.log(`Servicio listo en el puerto : ${puerto}`))
 
 export default app;

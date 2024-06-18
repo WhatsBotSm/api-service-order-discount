@@ -1,8 +1,13 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
 import middlewares from '../middlewares/index.js';
 import controllers from '../controladores/index.js';
+import swaggerDocument from '../../swagger.js';
 const router = express.Router();
 
+// api-doc
+router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Pedidos - [ productos ]'));
+router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 /*********************** */
 router.post('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.descuentos);
 /***************************/
