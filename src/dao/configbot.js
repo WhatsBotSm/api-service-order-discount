@@ -11,7 +11,6 @@ export const getConfigBotById = async function (Id) {
         FROM adminchat.configbot WHERE idbot = $1`;
 
         const resultado = await client.query(query, [Id]);
-        console.log("resualtado",resultado)
         client.release();
 
         return resultado.rows.length > 0 ? resultado.rows : [false];
