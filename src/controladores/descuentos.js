@@ -1,11 +1,17 @@
 import respJSON from "../configuraciones/respuesta.js";
 import { HTTP_CODIGOS } from "../configuraciones/codigos_http.js";
+import { logger } from '../../src/funciones/utilerias/logger.js';
 // import * as servicios from '../servicios/microservicios.js';
 import esquema from "../funciones/validaciones/esquema.js";
 import bodys from "../configuraciones/esquemas/generales.js";
 import dao from "../dao/descuentos/index.js";
 
 export const consultarDes = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
   try {
     let params = {
       query: req.query,
@@ -17,8 +23,17 @@ export const consultarDes = async (req, res) => {
     let id_descuento = params.path.id_descuento;
     console.log("id_descuento : ", id_descuento);
     let resBD = await dao.getByIdDes(id_descuento);
+    if (!resBD || resBD.length === 0 || resBD[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._000.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._000.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
 
-    let respuesta = {
+    respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
@@ -26,6 +41,42 @@ export const consultarDes = async (req, res) => {
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
+export const consultarTodoDes = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
+  try {
+    let resBD = await dao.getTodoDes();
+    if (!resBD || resBD.length === 0 || resBD[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+
+    respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
+      resultado: resBD
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    logger.debug(error)
     let respuestaError = {
       ...respJSON,
       codigo: HTTP_CODIGOS._400.contexto._013.codigo,
@@ -56,6 +107,13 @@ export const descuentos = async (req, res) => {
     if (resBody.error) {
       respuesta.codigo = HTTP_CODIGOS._400.contexto._011.codigo;
       respuesta.mensaje = HTTP_CODIGOS._400.contexto._011.mensaje;
+      respuesta.errores = resBody.error;
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+    if (new Date(descount.fecha_inicio) > new Date(descount.fecha_fin)) {
+      respuesta.codigo = HTTP_CODIGOS._400.contexto._014.codigo;
+      respuesta.mensaje = HTTP_CODIGOS._400.contexto._014.mensaje;
       respuesta.errores = resBody.error;
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
@@ -114,6 +172,7 @@ export const descuentos = async (req, res) => {
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {
+    console.log(error)
     let respuestaError = {
       ...respJSON,
       codigo: HTTP_CODIGOS._400.contexto._013.codigo,
@@ -148,6 +207,23 @@ export const actDescuentos = async (req, res) => {
       return res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
     }
     let [descOrig] = await dao.getDescuent(id_descuento);
+    if (!descOrig) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+    if (new Date(resBody.fecha_inicio) > new Date(resBody.fecha_fin) || new Date(resBody.fecha_inicio) < new Date()) {
+      respuesta.codigo = HTTP_CODIGOS._400.contexto._013.codigo;
+      respuesta.mensaje = HTTP_CODIGOS._400.contexto._013.mensaje;
+      respuesta.errores = resBody.error;
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+
     console.log("resBody : ", resBody);
     descount = {
       id_descuento: id_descuento,
@@ -157,8 +233,8 @@ export const actDescuentos = async (req, res) => {
       descripcion: descount.descripcion,
       tipo_descuento: descount.tipo_descuento,
       valor: descount.valor,
-      fecha_inicio: descount.fecha_inicio,
-      fecha_fin: descount.fecha_fin,
+      fecha_inicio: descount.fecha_inicio || new Date(),
+      fecha_fin: descount.fecha_fin || new Date(),
       codigo: descount.codigo
     };
     let values = {
@@ -173,6 +249,15 @@ export const actDescuentos = async (req, res) => {
     const diferencias = compararObjetosDetalles(descOrig, values);
     console.log(diferencias);
     let resBD = await dao.updateDes(descount);
+    if (!resBD) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
     let bitdescu = { ...params.body.bitdescu };
     bitdescu = {
       idbot: descount.idbot_control,
@@ -190,7 +275,7 @@ export const actDescuentos = async (req, res) => {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: {...resBD, ...descount, ...resBDbit} 
+      resultado: { ...resBD, ...descount, ...resBDbit }
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {
@@ -204,6 +289,11 @@ export const actDescuentos = async (req, res) => {
   }
 };
 export const borrarDes = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
   try {
     let params = {
       query: req.query,
@@ -216,7 +306,7 @@ export const borrarDes = async (req, res) => {
     console.log("id_descuento : ", id_descuento);
     let resBD = await dao.delByIdDes(id_descuento);
 
-    let respuesta = {
+    respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
@@ -234,20 +324,27 @@ export const borrarDes = async (req, res) => {
   }
 };
 function compararObjetosDetalles(obj1, obj2) {
-  const diferencias = [];
+  try {
+    const diferencias = []; 
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+    const allKeys = new Set([...keys1, ...keys2]);
 
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
+    allKeys.forEach((key) => {
+      if (obj1[key] !== obj2[key]) {
+        diferencias.push(key);
+      }
+    });
+    return diferencias;
 
-  // Asegurar que ambos objetos tengan las mismas claves
-  const allKeys = new Set([...keys1, ...keys2]);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
 
-  allKeys.forEach((key) => {
-    if (obj1[key] !== obj2[key]) {
-      diferencias.push(key);
-    }
-  });
-
-  return diferencias;
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
 }
 

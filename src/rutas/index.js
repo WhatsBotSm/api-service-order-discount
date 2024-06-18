@@ -4,13 +4,14 @@ import controllers from '../controladores/index.js';
 const router = express.Router();
 
 /*********************** */
-router.post('/descuentos', middlewares.validaHeaders, controllers.descuentos.descuentos);
-/***************************/ 
-router.get('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.consultarDes);
+router.post('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.descuentos);
+/***************************/
+router.get('/descuento/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDes);
 /******************** */
-router.put('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.actDescuentos);
-/***************************/ 
-router.delete('/descuentos/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.borrarDes);
+router.put('/descuento/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.actDescuentos);
+/***************************/
+router.delete('/descuentos/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.borrarDes);
 /******************** */
+router.get('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarTodoDes);
 //middlewares.verificaToken,
 export default router;

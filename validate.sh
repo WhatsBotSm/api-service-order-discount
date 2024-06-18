@@ -1,8 +1,8 @@
 #!/bin/bash
-PATH_APP="/home/runner/work/api-service-order/api-service-order"
+PATH_APP="/home/runner/work/api-service-order-discount/api-service-order-discount"
 FILE_FLY="$PATH_APP/fly.toml"
 FILE_DCKR="$PATH_APP/Dockerfile"
-NAME_APP="whtsb-api-service-order-v1"
+NAME_APP="whtsb-api-service-order-discount-v1"
 echo "Start of script...$APP"
 echo NAME_APP $NAME_APP
 touch "$PATH_APP/fly_temp.toml"

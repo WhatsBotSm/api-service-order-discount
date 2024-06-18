@@ -1,8 +1,9 @@
-name: Fly Deploy
+name: Deploy Stage Service
 on:
   push:
     branches:
       - main
+      - stage-uat
 env:
   FLY_API_TOKEN: ${{ secrets.TOKEN_FLY }}
 jobs:
@@ -36,7 +37,7 @@ jobs:
             context: ./
             file: ./Dockerfile
             push: true
-            tags: ${{ secrets.USER_DOCKER }}/api-service-order:1.1.1
+            tags: ${{ secrets.USER_DOCKER }}/api-service-order-discount:1.1.1
   deploy_app_fly:
       name: Deploy App on Fly
       runs-on: ubuntu-latest

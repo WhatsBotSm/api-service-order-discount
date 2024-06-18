@@ -44,6 +44,14 @@ export const HTTP_CODIGOS = {
         codigo: "013",
         mensaje: "Error al registrar descuento",
       },
+      _0404: {
+        codigo: "0404",
+        mensaje: "No hay resultados",
+      },
+      _014: {
+        codigo: "014",
+        mensaje: "La fecha fin debe de ser mayor",
+      },
     },
   },
   _401: {
