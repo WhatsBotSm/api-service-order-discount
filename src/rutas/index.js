@@ -6,7 +6,7 @@ const router = express.Router();
 /*********************** */
 router.post('/descuento', middlewares.validaHeaders, controllers.descuentos.descuentos);
 /***************************/ 
-router.get('/descuento/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.consultarDes);
+router.get('/descuento/:id_descuento',middlewares.verificaToken, middlewares.validaHeaders,  controllers.descuentos.consultarDes);
 /******************** */
 router.put('/descuento/:id_descuento', middlewares.validaHeaders,  controllers.descuentos.actDescuentos);
 /***************************/ 
