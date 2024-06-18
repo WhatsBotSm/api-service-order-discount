@@ -9,7 +9,7 @@ processes = []
 [env]
   PORT = "8080"
   NODE_ENV = "production"
-  BASE_API="api/descuento/v1"
+  BASE_API="/api/descuento/v1"
   API_URL_ALERTA="VALUE_API_URL_ALERTA"
 
 [experimental]
