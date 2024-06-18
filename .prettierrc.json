@@ -1,0 +1,16 @@
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "embeddedLanguageFormatting": "auto",
+  "insertPragma": false,
+  "printWidth": 150,
+  "proseWrap": "never",
+  "requirePragma": false,
+  "semi": true,
+  "singleQuote": false,
+  "parser": "flow",
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "useTabs": false,
+  "endOfLine":"auto"
+}

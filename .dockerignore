@@ -1,0 +1,16 @@
+### NodeJS ###
+# Dependency directories
+node_modules
+package-lock.json
+logs
+*.zip
+.env
+.git
+docker-compose.yml
+#sonar-project.properties
+
+package-lock.json
+logs
+.github/
+*.zip
+.env.example
