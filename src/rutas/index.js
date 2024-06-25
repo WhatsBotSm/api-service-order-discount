@@ -19,4 +19,6 @@ router.delete('/descuentos/:id_descuento', middlewares.validaHeaders, middleware
 /******************** */
 router.get('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarTodoDes);
 //middlewares.verificaToken,
+
+router.get('/descuento/idbot/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDesByIdBot);
 export default router;

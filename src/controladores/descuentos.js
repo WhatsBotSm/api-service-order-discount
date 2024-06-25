@@ -26,8 +26,52 @@ export const consultarDes = async (req, res) => {
     if (!resBD || resBD.length === 0 || resBD[0] === false) {
       respuesta = {
         ...respJSON,
-        codigo: HTTP_CODIGOS._400.contexto._000.codigo,
-        mensaje: HTTP_CODIGOS._400.contexto._000.mensaje
+        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+
+    respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
+      resultado: resBD
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
+export const consultarDesByIdBot = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
+  try {
+    let params = {
+      query: req.query,
+      path: req.params,
+      body: req.body,
+      header: req.headers
+    };
+
+    let idbot_control = params.path.idbot_control;
+    console.log("id_descuento : ", idbot_control);
+    let resBD = await dao.getDesByIdBot(idbot_control);
+    if (!resBD || resBD.length === 0 || resBD[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
       };
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
@@ -211,8 +255,8 @@ export const actDescuentos = async (req, res) => {
     if (!descOrig) {
       respuesta = {
         ...respJSON,
-        codigo: HTTP_CODIGOS._400.contexto._013.codigo,
-        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
+        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje,
       };
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
