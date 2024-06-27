@@ -61,6 +61,39 @@ export const getTodoDes = async function () {
     return err;
   }
 };
+
+export const getDescuentosPaginados = async (startIndex, pageSize) => {
+  let client;
+  try {
+    client = await getClient();
+    const query = `SELECT * FROM orders_bot.descuentos ORDER BY id_descuento ASC LIMIT $1 OFFSET $2`;
+    const resultado = await client.query(query, [pageSize, startIndex]);
+    client.release();
+    return resultado.rows;
+  } catch (err) {
+    if (client) client.release();
+    logger.debug(err);
+    console.log(err);
+    return err;
+  }
+};
+
+export const getTotalDescuentos = async () => {
+  let client;
+  try {
+    client = await getClient();
+    const query = `SELECT COUNT(*) FROM orders_bot.descuentos`;
+    const resultado = await client.query(query);
+    client.release();
+    return parseInt(resultado.rows[0].count);
+  } catch (err) {
+    if (client) client.release();
+    logger.debug(err);
+    console.log(err);
+    return err;
+  }
+};
+
 export const getDescuent = async function (id_descuento) {
   console.log("getDescuent", id_descuento);
   let descuen;

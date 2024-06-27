@@ -131,6 +131,38 @@ export const consultarTodoDes = async (req, res) => {
   }
 };
 
+export const consultarPaginado = async (req, res) => {
+  let respuesta = {
+    ...respJSON,
+    codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+    mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
+  };
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const startIndex = (page - 1) * pageSize;
+    
+    const descuentos = await dao.getDescuentosPaginados(startIndex, pageSize);
+    const totalDescuentos = await dao.getTotalDescuentos();
+    const totalPages = Math.ceil(totalDescuentos / pageSize);
+    
+    respuesta = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._200.contexto._000.codigo,
+      mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
+      resultado: { descuentos, totalPages }
+    };
+    res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
+  } catch (error) {
+    logger.debug(error);
+    let respuestaError = {
+      ...respJSON,
+      codigo: HTTP_CODIGOS._400.contexto._013.codigo,
+      mensaje: error.message
+    };
+    res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
+  }
+};
 
 export const descuentos = async (req, res) => {
   let respuesta = {
