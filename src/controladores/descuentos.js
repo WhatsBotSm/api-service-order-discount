@@ -138,12 +138,37 @@ export const consultarPaginado = async (req, res) => {
     mensaje: HTTP_CODIGOS._200.contexto._000.mensaje
   };
   try {
+    let params = {
+      query: req.query,
+      path: req.params,
+      body: req.body,
+      header: req.headers
+    };
+    let idbot_control = params.path.idbot_control;
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
     const startIndex = (page - 1) * pageSize;
     
-    const descuentos = await dao.getDescuentosPaginados(startIndex, pageSize);
-    const totalDescuentos = await dao.getTotalDescuentos();
+    const descuentos = await dao.getDescuentosPaginados(idbot_control,startIndex, pageSize);
+    if (!descuentos || descuentos.length === 0 || descuentos[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
+    const totalDescuentos = await dao.getTotalDescuentos(idbot_control);
+    if (!totalDescuentos || totalDescuentos.length === 0 || totalDescuentos[0] === false) {
+      respuesta = {
+        ...respJSON,
+        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
+      };
+      res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
+      return;
+    }
     const totalPages = Math.ceil(totalDescuentos / pageSize);
     
     respuesta = {

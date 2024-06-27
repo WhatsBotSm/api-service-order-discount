@@ -19,7 +19,7 @@ router.delete('/descuentos/:id_descuento', middlewares.validaHeaders, middleware
 /******************** */
 router.get('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarTodoDes);
 /******************** */
-router.get('/descuentos', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarPaginado);
+router.get('/descuentos/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarPaginado);
 //middlewares.verificaToken,
 
 router.get('/descuento/idbot/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDesByIdBot);
