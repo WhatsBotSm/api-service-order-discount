@@ -62,12 +62,42 @@ export const getTodoDes = async function () {
   }
 };
 
-export const getDescuentosPaginados = async (idbot,startIndex, pageSize) => {
+export const getDescuentosPaginados = async (idbot, startIndex, pageSize, searchTerm, filterType, startDate, endDate) => {
   let client;
   try {
     client = await getClient();
-    const query = `SELECT * FROM orders_bot.descuentos WHERE idbot_control = $1 ORDER BY id_descuento ASC LIMIT $2 OFFSET $3;`;
-    const resultado = await client.query(query, [idbot,pageSize, startIndex]);
+    let query = `
+          SELECT * FROM orders_bot.descuentos 
+          WHERE idbot_control = $1
+      `;
+    let params = [idbot];
+    let paramIndex = 2;
+
+    if (searchTerm) {
+      query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
+      params.push(`%${searchTerm}%`);
+      paramIndex++;
+    }
+    if (filterType) {
+      query += ` AND tipo_descuento = $${paramIndex}`;
+      params.push(filterType);
+      paramIndex++;
+    }
+    if (startDate) {
+      query += ` AND fecha_inicio >= $${paramIndex}`;
+      params.push(startDate);
+      paramIndex++;
+    }
+    if (endDate) {
+      query += ` AND fecha_fin <= $${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY id_descuento ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    params.push(pageSize, startIndex);
+
+    const resultado = await client.query(query, params);
     client.release();
     return resultado.rows;
   } catch (err) {
@@ -78,12 +108,39 @@ export const getDescuentosPaginados = async (idbot,startIndex, pageSize) => {
   }
 };
 
-export const getTotalDescuentos = async (idbot) => {
+export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDate, endDate) => {
   let client;
   try {
     client = await getClient();
-    const query = `SELECT COUNT(*) FROM orders_bot.descuentos where idbot_control = $1;`;
-    const resultado = await client.query(query,[idbot]);
+    let query = `
+          SELECT COUNT(*) FROM orders_bot.descuentos 
+          WHERE idbot_control = $1
+      `;
+    let params = [idbot];
+    let paramIndex = 2;
+
+    if (searchTerm) {
+      query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
+      params.push(`%${searchTerm}%`);
+      paramIndex++;
+    }
+    if (filterType) {
+      query += ` AND tipo_descuento = $${paramIndex}`;
+      params.push(filterType);
+      paramIndex++;
+    }
+    if (startDate) {
+      query += ` AND fecha_inicio >= $${paramIndex}`;
+      params.push(startDate);
+      paramIndex++;
+    }
+    if (endDate) {
+      query += ` AND fecha_fin <= $${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
+    }
+
+    const resultado = await client.query(query, params);
     client.release();
     return parseInt(resultado.rows[0].count);
   } catch (err) {
