@@ -43,14 +43,14 @@ export const getDesByIdBot = async function (id_descuento) {
     return err;
   }
 };
-export const getTodoDes = async function (idbot) {
+export const getTodoDes = async function () {
   let descuen;
   try {
     descuen = await getClient();
 
     const query = `SELECT * FROM orders_bot.descuentos order by id_descuento asc where idbot_control = $1;`;
 
-    const resultado = await descuen.query(query[idbot]);
+    const resultado = await descuen.query(query);
     descuen.release();
 
     return resultado.rows.length > 0 ? resultado.rows : [false];
@@ -78,12 +78,12 @@ export const getDescuentosPaginados = async (idbot,startIndex, pageSize) => {
   }
 };
 
-export const getTotalDescuentos = async () => {
+export const getTotalDescuentos = async (idbot) => {
   let client;
   try {
     client = await getClient();
     const query = `SELECT COUNT(*) FROM orders_bot.descuentos `;
-    const resultado = await client.query(query);
+    const resultado = await client.query(query,[idbot]);
     client.release();
     return parseInt(resultado.rows[0].count);
   } catch (err) {
