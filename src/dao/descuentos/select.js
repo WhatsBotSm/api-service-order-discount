@@ -82,7 +82,7 @@ export const getTotalDescuentos = async (idbot) => {
   let client;
   try {
     client = await getClient();
-    const query = `SELECT COUNT(*) FROM orders_bot.descuentos `;
+    const query = `SELECT COUNT(*) FROM orders_bot.descuentos where idbot_control = $1;`;
     const resultado = await client.query(query,[idbot]);
     client.release();
     return parseInt(resultado.rows[0].count);
