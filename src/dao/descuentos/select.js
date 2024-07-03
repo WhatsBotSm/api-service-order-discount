@@ -1,5 +1,6 @@
 import { logger } from "../../funciones/utilerias/logger.js";
 import { getClient } from "../../configuraciones/config.db.js";
+import { selColumnsDescByBot, selColumnsDesc, selColumnsDescPaguinado,ftSearchTerm,ftType,ftStartDate,ftEndDate,ftOffsetDes } from './listaquery.js'
 
 export const getByIdDes = async function (id_descuento) {
   console.log("getPedidoById", id_descuento);
@@ -7,11 +8,7 @@ export const getByIdDes = async function (id_descuento) {
   try {
     descuen = await getClient();
 
-    const query = `SELECT id_descuento, id_client_admin_bot, idbot_control, created, updated, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo
-    FROM orders_bot.descuentos
-    where id_descuento = $1;`;
-
-    const resultado = await descuen.query(query, [id_descuento]);
+    const resultado = await descuen.query(selColumnsDesc, [id_descuento]);
     descuen.release();
 
     return resultado.rows.length > 0 ? resultado.rows : [false];
@@ -22,17 +19,13 @@ export const getByIdDes = async function (id_descuento) {
     return err;
   }
 };
-export const getDesByIdBot = async function (id_descuento) {
-  console.log("getPedidoById", id_descuento);
+export const getDesByIdBot = async function (id_bot) {
+  console.log("getPedidoById", id_bot);
   let descuen;
   try {
     descuen = await getClient();
 
-    const query = `SELECT id_descuento, id_client_admin_bot, idbot_control, created, updated, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo
-    FROM orders_bot.descuentos
-    where idbot_control = $1;`;
-
-    const resultado = await descuen.query(query, [id_descuento]);
+    const resultado = await descuen.query(selColumnsDescByBot, [id_bot]);
     descuen.release();
 
     return resultado.rows.length > 0 ? resultado.rows : [false];
@@ -48,7 +41,7 @@ export const getTodoDes = async function () {
   try {
     descuen = await getClient();
 
-    const query = `SELECT * FROM orders_bot.descuentos order by id_descuento asc where idbot_control = $1;`;
+    const query = `SELECT * FROM orders_bot.descuentos order by id_descuento asc;`;
 
     const resultado = await descuen.query(query);
     descuen.release();
@@ -66,10 +59,7 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
   let client;
   try {
     client = await getClient();
-    let query = `
-          SELECT * FROM orders_bot.descuentos 
-          WHERE idbot_control = $1
-      `;
+    let query = selColumnsDesc;
     let params = [idbot];
     let paramIndex = 2;
 
@@ -112,10 +102,7 @@ export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDat
   let client;
   try {
     client = await getClient();
-    let query = `
-          SELECT COUNT(*) FROM orders_bot.descuentos 
-          WHERE idbot_control = $1
-      `;
+    let query = selColumnsDescPaguinado;
     let params = [idbot];
     let paramIndex = 2;
 
