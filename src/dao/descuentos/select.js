@@ -59,7 +59,7 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
   let client;
   try {
     client = await getClient();
-    let query = selColumnsDesc;
+    let query = selColumnsDescByBot;
     let params = [idbot];
     let paramIndex = 2;
 

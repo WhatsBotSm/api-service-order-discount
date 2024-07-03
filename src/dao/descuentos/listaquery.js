@@ -44,7 +44,7 @@ export const queryInsertDesc = `INSERT INTO orders_bot.descuentos (${columnsInsD
 
 export const selColumnsDesc = `SELECT ${columnsGetDesc.join(",")} ${baseQueryDesc} WHERE ${ftIdDescuento(1)};`;
 
-export const selColumnsDescByBot = `SELECT ${columnsGetDesc.join(",")} ${baseQueryDesc} WHERE ${ftIdDescBot(1)};`;
+export const selColumnsDescByBot = `SELECT ${columnsGetDesc.join(",")} ${baseQueryDesc} WHERE ${ftIdDescBot(1)}`;
 
 export const selColumnsDescPaguinado =  `SELECT COUNT(*) ${baseQueryDesc} WHERE ${ftIdDescBot(1)}`;
 export const ftSearchTerm = (paramIndex) =>  ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
