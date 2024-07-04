@@ -356,7 +356,8 @@ export const actDescuentos = async (req, res) => {
       fecha_fin: descount.fecha_fin || new Date(),
       codigo: descount.codigo
     };
-    let values = {
+
+    let valuesBit = {
       nombre: descount.nombre,
       descripcion: descount.descripcion,
       tipo_descuento: descount.tipo_descuento,
@@ -364,8 +365,8 @@ export const actDescuentos = async (req, res) => {
       codigo: descount.codigo
     };
     const joinedValuesPast = Object.values(descOrig).join(" | ");
-    const joinedValuesLast = Object.values(values).join(" | ");
-    const diferencias = compararObjetosDetalles(descOrig, values);
+    const joinedValuesLast = Object.values(valuesBit).join(" | ");
+    const diferencias = compararObjetosDetalles(descOrig, valuesBit);
     console.log(diferencias);
     let resBD = await dao.updateDes(descount);
     if (!resBD) {

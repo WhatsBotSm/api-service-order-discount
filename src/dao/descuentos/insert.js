@@ -1,17 +1,15 @@
 import { logger } from "../../funciones/utilerias/logger.js";
 import { getClient } from "../../configuraciones/config.db.js";
+import { queryInsertDesc } from './listaquery.js'
 
-export const insertDescuento = async function (pedido) {
-  const values = Object.values(pedido);
+export const insertDescuento = async function (descuento) {
+  const values = Object.values(descuento);
   console.log("insertDescuento", values);
   let descuen;
   try {
     descuen = await getClient();
 
-    const query = `INSERT INTO orders_bot.descuentos (id_client_admin_bot, idbot_control, nombre, descripcion, tipo_descuento, valor, fecha_inicio, fecha_fin, codigo) VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id_descuento`;
-
-    const resultado = await descuen.query(query, values);
+    const resultado = await descuen.query(queryInsertDesc, values);
     descuen.release();
 
     return resultado.rowCount > 0 ? resultado.rows : [false];
