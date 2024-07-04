@@ -55,6 +55,49 @@ export const getTodoDes = async function () {
   }
 };
 
+// export const getDescuentosPaginados = async (idbot, startIndex, pageSize, searchTerm, filterType, startDate, endDate) => {
+//   let client;
+//   try {
+//     client = await getClient();
+//     let query = selColumnsDescByBot;
+//     let params = [idbot];
+//     let paramIndex = 2;
+
+//     if (searchTerm) {
+//       query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
+//       params.push(`%${searchTerm}%`);
+//       paramIndex++;
+//     }
+//     if (filterType) {
+//       query += ` AND tipo_descuento = $${paramIndex}`;
+//       params.push(filterType);
+//       paramIndex++;
+//     }
+//     if (startDate) {
+//       query += ` AND fecha_inicio >= $${paramIndex}`;
+//       params.push(startDate);
+//       paramIndex++;
+//     }
+//     if (endDate) {
+//       query += ` AND fecha_fin <= $${paramIndex}`;
+//       params.push(endDate);
+//       paramIndex++;
+//     }
+
+//     query += ` ORDER BY id_descuento ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+//     params.push(pageSize, startIndex);
+
+//     const resultado = await client.query(query, params);
+//     client.release();
+//     return resultado.rows;
+//   } catch (err) {
+//     if (client) client.release();
+//     logger.debug(err);
+//     console.log(err);
+//     return err;
+//   }
+// };
+
 export const getDescuentosPaginados = async (idbot, startIndex, pageSize, searchTerm, filterType, startDate, endDate) => {
   let client;
   try {
@@ -64,27 +107,27 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
     let paramIndex = 2;
 
     if (searchTerm) {
-      query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
+      query += ftSearchTerm(paramIndex);
       params.push(`%${searchTerm}%`);
       paramIndex++;
     }
     if (filterType) {
-      query += ` AND tipo_descuento = $${paramIndex}`;
+      query += ftType(paramIndex);
       params.push(filterType);
       paramIndex++;
     }
     if (startDate) {
-      query += ` AND fecha_inicio >= $${paramIndex}`;
+      query += ftStartDate(paramIndex);
       params.push(startDate);
       paramIndex++;
     }
     if (endDate) {
-      query += ` AND fecha_fin <= $${paramIndex}`;
+      query += ftEndDate(paramIndex);
       params.push(endDate);
       paramIndex++;
     }
 
-    query += ` ORDER BY id_descuento ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    query += ftOffsetDes(paramIndex);
     params.push(pageSize, startIndex);
 
     const resultado = await client.query(query, params);
@@ -98,6 +141,46 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
   }
 };
 
+// export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDate, endDate) => {
+//   let client;
+//   try {
+//     client = await getClient();
+//     let query = selColumnsDescPaguinado;
+//     let params = [idbot];
+//     let paramIndex = 2;
+
+//     if (searchTerm) {
+//       query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
+//       params.push(`%${searchTerm}%`);
+//       paramIndex++;
+//     }
+//     if (filterType) {
+//       query += ` AND tipo_descuento = $${paramIndex}`;
+//       params.push(filterType);
+//       paramIndex++;
+//     }
+//     if (startDate) {
+//       query += ` AND fecha_inicio >= $${paramIndex}`;
+//       params.push(startDate);
+//       paramIndex++;
+//     }
+//     if (endDate) {
+//       query += ` AND fecha_fin <= $${paramIndex}`;
+//       params.push(endDate);
+//       paramIndex++;
+//     }
+
+//     const resultado = await client.query(query, params);
+//     client.release();
+//     return parseInt(resultado.rows[0].count);
+//   } catch (err) {
+//     if (client) client.release();
+//     logger.debug(err);
+//     console.log(err);
+//     return err;
+//   }
+// };
+
 export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDate, endDate) => {
   let client;
   try {
@@ -107,22 +190,22 @@ export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDat
     let paramIndex = 2;
 
     if (searchTerm) {
-      query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
+      query += ftSearchTerm(paramIndex);
       params.push(`%${searchTerm}%`);
       paramIndex++;
     }
     if (filterType) {
-      query += ` AND tipo_descuento = $${paramIndex}`;
+      query += ftType(paramIndex);
       params.push(filterType);
       paramIndex++;
     }
     if (startDate) {
-      query += ` AND fecha_inicio >= $${paramIndex}`;
+      query += ftStartDate(paramIndex);
       params.push(startDate);
       paramIndex++;
     }
     if (endDate) {
-      query += ` AND fecha_fin <= $${paramIndex}`;
+      query += ftEndDate(paramIndex);
       params.push(endDate);
       paramIndex++;
     }
