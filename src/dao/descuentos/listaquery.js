@@ -46,7 +46,7 @@ export const selColumnsDesc = `SELECT ${columnsGetDesc.join(",")} ${baseQueryDes
 
 export const selColumnsDescByBot = `SELECT ${columnsGetDesc.join(",")} ${baseQueryDesc} WHERE ${ftIdDescBot(1)}`;
 
-export const selColumnsDescPaguinado =  `SELECT COUNT(*) ${baseQueryDesc} WHERE ${ftIdDescBot(1)}`;
+export const selColumnsDescPaguinado =  `SELECT COUNT(*) AS Totalrows ${baseQueryDesc} WHERE ${ftIdDescBot(1)}`;
 export const ftSearchTerm = (paramIndex) =>  ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
 export const ftType = (paramIndex) =>  ` AND tipo_descuento = $${paramIndex}`;
 export const ftStartDate = (paramIndex) =>  ` AND fecha_inicio >= $${paramIndex}`;
