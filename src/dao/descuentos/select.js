@@ -102,40 +102,60 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
   let client;
   try {
     client = await getClient();
+    let contador = selColumnsDescPaguinado;
     let query = selColumnsDescByBot;
     let params = [idbot];
-    let paramIndex = 2;
+    let paramsCount = [idbot];
+    let paramIndex = 2; 
 
     if (searchTerm) {
-      query += ftSearchTerm(paramIndex);
+      const filter = ftSearchTerm(paramIndex);
+      query += filter;
+      contador += filter;
       params.push(`%${searchTerm}%`);
+      paramsCount.push(`%${searchTerm}%`);
       paramIndex++;
     }
     if (filterType) {
-      query += ftType(paramIndex);
+      const filter = ftType(paramIndex);
+      query += filter;
+      contador += filter;
       params.push(filterType);
+      paramsCount.push(filterType);
       paramIndex++;
     }
     if (startDate) {
-      query += ftStartDate(paramIndex);
+      const filter = ftStartDate(paramIndex);
+      query += filter;
+      contador += filter;
       params.push(startDate);
+      paramsCount.push(startDate);
       paramIndex++;
     }
     if (endDate) {
-      query += ftEndDate(paramIndex);
+      const filter = ftEndDate(paramIndex);
+      query += filter;
+      contador += filter;
       params.push(endDate);
+      paramsCount.push(endDate);
       paramIndex++;
     }
 
     query += ftOffsetDes(paramIndex);
     params.push(pageSize, startIndex);
 
+    const resultadoTotal = await client.query(contador, paramsCount);
+    let resultCount = resultadoTotal.rows.length > 0 ? resultadoTotal.rows[0].totalrows : 0;
+
     const resultado = await client.query(query, params);
     client.release();
-    return resultado.rows;
+
+    return resultado.rows.length > 0 
+      ? { rows: resultado.rows, Total: resultCount }
+      : { rows: [], Total: 0 };
+
   } catch (err) {
     if (client) client.release();
-    logger.debug(err);
     console.log(err);
     return err;
   }
