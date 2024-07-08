@@ -1,34 +1,33 @@
-import { logger } from '../../funciones/utilerias/logger.js';
-import { getClient } from '../../configuraciones/config.db.js';
+import { logger } from "../../funciones/utilerias/logger.js";
+import { getClient } from "../../configuraciones/config.db.js";
+import { updColumnsDesc } from "./listaquery.js";
 
-export const updateDes = async function (cita) {
-    const values = Object.values(cita);
-    let client;
-    try {
-        client = await getClient();
-        const query = `UPDATE orders_bot.descuentos
-        SET  
-        id_client_admin_bot=$2,
-        idbot_control=$3,
-        updated=CURRENT_TIMESTAMP,
-        nombre=$4,
-        descripcion=$5,
-        tipo_descuento=$6,
-        valor=$7,
-        fecha_inicio=$8,
-        fecha_fin=$9,
-        codigo=$10
-        WHERE id_descuento=$1`;
+export const updateDes = async function (descuento) {
+  let client;
+  try {
+    client = await getClient();
+    let templateDesc = {
+      id_client_admin_bot: descuento.id_client_admin_bot,
+      idbot_control: descuento.idbot_control,
+      nombre: descuento.nombre,
+      descripcion: descuento.descripcion,
+      tipo_descuento: descuento.tipo_descuento,
+      valor: descuento.valor,
+      fecha_inicio: descuento.fecha_inicio || new Date(),
+      fecha_fin: descuento.fecha_fin || new Date(),
+      codigo: descuento.codigo
+    };
+    const values = Object.values(templateDesc);
+    values.push(descuento.id_descuento);
 
-        const resultado = await client.query(query, values);
-        client.release();
+    const resultado = await client.query(updColumnsDesc, values);
+    client.release();
 
-        return resultado.rowCount > 0;
-
-    } catch (err) {
-        if (client) client.release();
-        logger.debug(err);
-        console.log(err)
-        return err;
-    }
-}
+    return resultado.rowCount > 0;
+  } catch (err) {
+    if (client) client.release();
+    logger.debug(err);
+    console.log("Error", err);
+    return err;
+  }
+};

@@ -1,6 +1,6 @@
 import respJSON from "../configuraciones/respuesta.js";
 import { HTTP_CODIGOS } from "../configuraciones/codigos_http.js";
-import { logger } from '../../src/funciones/utilerias/logger.js';
+import { logger } from "../../src/funciones/utilerias/logger.js";
 // import * as servicios from '../servicios/microservicios.js';
 import esquema from "../funciones/validaciones/esquema.js";
 import bodys from "../configuraciones/esquemas/generales.js";
@@ -120,7 +120,7 @@ export const consultarTodoDes = async (req, res) => {
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {
-    logger.debug(error)
+    logger.debug(error);
     let respuestaError = {
       ...respJSON,
       codigo: HTTP_CODIGOS._400.contexto._013.codigo,
@@ -150,17 +150,9 @@ export const consultarPaginado = async (req, res) => {
     const startIndex = (page - 1) * pageSize;
     const { searchTerm, filterType, startDate, endDate } = req.query;
 
-    const descuentos = await dao.getDescuentosPaginados(
-      idbot_control,
-      startIndex,
-      pageSize,
-      searchTerm,
-      filterType,
-      startDate,
-      endDate
-    );
+    const resBD = await dao.getDescuentosPaginados(idbot_control, startIndex, pageSize, searchTerm, filterType, startDate, endDate);
 
-    if (!descuentos || descuentos.length === 0 || descuentos[0] === false) {
+    if (!resBD || resBD.length === 0 || resBD[0] === false) {
       respuesta = {
         ...respJSON,
         codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
@@ -169,30 +161,26 @@ export const consultarPaginado = async (req, res) => {
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
-    const totalDescuentos = await dao.getTotalDescuentos(
-      idbot_control,
-      searchTerm,
-      filterType,
-      startDate,
-      endDate
-    );
+    console.log("descuen", resBD);
 
-    if (!totalDescuentos || totalDescuentos.length === 0 || totalDescuentos[0] === false) {
+    let descuentos = resBD.rows || [false];
+    let totalItems = resBD.Total || 0;
+    if (!descuentos || descuentos[0] === false) {
       respuesta = {
         ...respJSON,
-        codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
-        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
+        codigo: HTTP_CODIGOS._400.contexto._000.codigo,
+        mensaje: HTTP_CODIGOS._400.contexto._000.mensaje
       };
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
-    const totalPages = Math.ceil(totalDescuentos / pageSize);
+    const totalPages = Math.ceil(totalItems / pageSize);
 
     respuesta = {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: { descuentos, totalPages }
+      resultado: { descuentos, totalPages, page }
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {
@@ -291,7 +279,7 @@ export const descuentos = async (req, res) => {
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     let respuestaError = {
       ...respJSON,
       codigo: HTTP_CODIGOS._400.contexto._013.codigo,
@@ -330,12 +318,12 @@ export const actDescuentos = async (req, res) => {
       respuesta = {
         ...respJSON,
         codigo: HTTP_CODIGOS._400.contexto._0404.codigo,
-        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje,
+        mensaje: HTTP_CODIGOS._400.contexto._0404.mensaje
       };
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
-    if (new Date(resBody.fecha_inicio) > new Date(resBody.fecha_fin) || new Date(resBody.fecha_inicio) < new Date()) {
+    if (new Date(resBody.fecha_inicio) > new Date(resBody.fecha_fin)) {
       respuesta.codigo = HTTP_CODIGOS._400.contexto._013.codigo;
       respuesta.mensaje = HTTP_CODIGOS._400.contexto._013.mensaje;
       respuesta.errores = resBody.error;
@@ -356,7 +344,8 @@ export const actDescuentos = async (req, res) => {
       fecha_fin: descount.fecha_fin || new Date(),
       codigo: descount.codigo
     };
-    let values = {
+
+    let valuesBit = {
       nombre: descount.nombre,
       descripcion: descount.descripcion,
       tipo_descuento: descount.tipo_descuento,
@@ -364,15 +353,15 @@ export const actDescuentos = async (req, res) => {
       codigo: descount.codigo
     };
     const joinedValuesPast = Object.values(descOrig).join(" | ");
-    const joinedValuesLast = Object.values(values).join(" | ");
-    const diferencias = compararObjetosDetalles(descOrig, values);
+    const joinedValuesLast = Object.values(valuesBit).join(" | ");
+    const diferencias = compararObjetosDetalles(descOrig, valuesBit);
     console.log(diferencias);
     let resBD = await dao.updateDes(descount);
     if (!resBD) {
       respuesta = {
         ...respJSON,
         codigo: HTTP_CODIGOS._400.contexto._013.codigo,
-        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje,
+        mensaje: HTTP_CODIGOS._400.contexto._013.mensaje
       };
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
@@ -455,7 +444,6 @@ function compararObjetosDetalles(obj1, obj2) {
       }
     });
     return diferencias;
-
   } catch (error) {
     let respuestaError = {
       ...respJSON,
@@ -466,4 +454,3 @@ function compararObjetosDetalles(obj1, obj2) {
     res.status(HTTP_CODIGOS._400.estatus).send(respuestaError);
   }
 }
-
