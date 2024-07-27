@@ -1,0 +1,13 @@
+### NodeJS ###
+# Dependency directories
+node_modules/
+bot_sessions/
+baileys.*
+*.qr.png
+*.class.log
+token.json
+package-lock.json
+/logs
+*.zip
+.env
+#sonar-project.properties
