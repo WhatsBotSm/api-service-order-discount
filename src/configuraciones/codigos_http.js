@@ -42,7 +42,7 @@ export const HTTP_CODIGOS = {
       },
       _013: {
         codigo: "013",
-        mensaje: "Error al registrar descuento",
+        mensaje: "Error al procesar descuento",
       },
       _0404: {
         codigo: "0404",

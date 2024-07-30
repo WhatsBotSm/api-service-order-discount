@@ -8,19 +8,12 @@ const router = express.Router();
 // api-doc
 router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Pedidos - [ productos ]'));
 router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-/*********************** */
+/************ingresar descuento*********** */
 router.post('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.descuentos);
-/***************************/
-router.get('/descuento/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDes);
-/******************** */
+/***********actualizar descuento********* */
 router.put('/descuento/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.actDescuentos);
-/***************************/
-router.delete('/descuentos/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.borrarDes);
-/******************** */
-router.get('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarTodoDes);
-/******************** */
+/**************consultar descuento por id_bot, con paguinado y filtros*************/
 router.get('/descuentos/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarPaginado);
-//middlewares.verificaToken,
-
+/**************consultar descuento por id_bot********** */
 router.get('/descuento/idbot/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDesByIdBot);
 export default router;

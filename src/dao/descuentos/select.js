@@ -2,263 +2,95 @@ import { logger } from "../../funciones/utilerias/logger.js";
 import { getClient } from "../../configuraciones/config.db.js";
 import { selColumnsDescByBot, selColumnsDesc, selColumnsDescPaguinado,ftSearchTerm,ftType,ftStartDate,ftEndDate,ftOffsetDes } from './listaquery.js'
 
-export const getByIdDes = async function (id_descuento) {
-  console.log("getPedidoById", id_descuento);
-  let descuen;
-  try {
-    descuen = await getClient();
-
-    const resultado = await descuen.query(selColumnsDesc, [id_descuento]);
-    descuen.release();
-
-    return resultado.rows.length > 0 ? resultado.rows : [false];
-  } catch (err) {
-    if (descuen) descuen.release();
-    logger.debug(err);
-    console.log(err);
-    return err;
-  }
-};
+//consulta por id_bot
 export const getDesByIdBot = async function (id_bot) {
-  console.log("getPedidoById", id_bot);
   let descuen;
   try {
     descuen = await getClient();
-
+    //consulta para obtener los descuentos por id_bot
     const resultado = await descuen.query(selColumnsDescByBot, [id_bot]);
     descuen.release();
-
+    //devuelve los valores de la consulta
     return resultado.rows.length > 0 ? resultado.rows : [false];
-  } catch (err) {
+  } catch (err) {//en caso de error entra en el catch
     if (descuen) descuen.release();
     logger.debug(err);
-    console.log(err);
-    return err;
-  }
-};
-export const getTodoDes = async function () {
-  let descuen;
-  try {
-    descuen = await getClient();
-
-    const query = `SELECT * FROM orders_bot.descuentos order by id_descuento asc;`;
-
-    const resultado = await descuen.query(query);
-    descuen.release();
-
-    return resultado.rows.length > 0 ? resultado.rows : [false];
-  } catch (err) {
-    if (descuen) descuen.release();
-    logger.debug(err);
-    console.log(err);
-    return err;
+    return err;//devuleve el error
   }
 };
 
-// export const getDescuentosPaginados = async (idbot, startIndex, pageSize, searchTerm, filterType, startDate, endDate) => {
-//   let client;
-//   try {
-//     client = await getClient();
-//     let query = selColumnsDescByBot;
-//     let params = [idbot];
-//     let paramIndex = 2;
-
-//     if (searchTerm) {
-//       query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
-//       params.push(`%${searchTerm}%`);
-//       paramIndex++;
-//     }
-//     if (filterType) {
-//       query += ` AND tipo_descuento = $${paramIndex}`;
-//       params.push(filterType);
-//       paramIndex++;
-//     }
-//     if (startDate) {
-//       query += ` AND fecha_inicio >= $${paramIndex}`;
-//       params.push(startDate);
-//       paramIndex++;
-//     }
-//     if (endDate) {
-//       query += ` AND fecha_fin <= $${paramIndex}`;
-//       params.push(endDate);
-//       paramIndex++;
-//     }
-
-//     query += ` ORDER BY id_descuento ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
-//     params.push(pageSize, startIndex);
-
-//     const resultado = await client.query(query, params);
-//     client.release();
-//     return resultado.rows;
-//   } catch (err) {
-//     if (client) client.release();
-//     logger.debug(err);
-//     console.log(err);
-//     return err;
-//   }
-// };
-
+//consulta por id_bot con filtros y paguinado
 export const getDescuentosPaginados = async (idbot, startIndex, pageSize, searchTerm, filterType, startDate, endDate) => {
   let client;
   try {
     client = await getClient();
-    let contador = selColumnsDescPaguinado;
-    let query = selColumnsDescByBot;
+    let contador = selColumnsDescPaguinado;//consulta para contar los registros, hasta el momento
+    let query = selColumnsDescByBot;//consulta para obtener los registros 
     let params = [idbot];
     let paramsCount = [idbot];
-    let paramIndex = 2; 
+    let paramIndex = 2; //servira para los filtros a ingresar
 
-    if (searchTerm) {
-      const filter = ftSearchTerm(paramIndex);
-      query += filter;
-      contador += filter;
+    if (searchTerm) {//en caso de mandar un filtro de busqueda por termino entra aqui
+      const filter = ftSearchTerm(paramIndex);//consulta por el termino mandado
+      query += filter;//se agrega el filtro a la consulta de registros
+      contador += filter;//se agrega a la consulta para contar
       params.push(`%${searchTerm}%`);
       paramsCount.push(`%${searchTerm}%`);
-      paramIndex++;
+      paramIndex++;//aumenta paramIndex por si se ocupa otro filtro
     }
-    if (filterType) {
-      const filter = ftType(paramIndex);
-      query += filter;
-      contador += filter;
-      params.push(filterType);
-      paramsCount.push(filterType);
-      paramIndex++;
-    }
-    if (startDate) {
-      const filter = ftStartDate(paramIndex);
-      query += filter;
-      contador += filter;
+    if (startDate) {//en caso de mandar un filtro por fecha inicio de descuento entra aqui
+      const filter = ftStartDate(paramIndex);//consulta por el filtro mandado
+      query += filter;//se agrega el filtro a la consulta de registros
+      contador += filter;//se agrega a la consulta para contar
       params.push(startDate);
       paramsCount.push(startDate);
-      paramIndex++;
+      paramIndex++;//aumenta paramIndex por si se ocupa otro filtro
     }
-    if (endDate) {
-      const filter = ftEndDate(paramIndex);
-      query += filter;
-      contador += filter;
+    if (endDate) {//en caso de mandar un filtro por fecha fin de descuento entra aqui
+      const filter = ftEndDate(paramIndex);//consulta por el filtro mandado
+      query += filter;//se agrega el filtro a la consulta de registros
+      contador += filter;//se agrega a la consulta para contar
       params.push(endDate);
       paramsCount.push(endDate);
-      paramIndex++;
+      paramIndex++;//aumenta paramIndex por si se ocupa otro filtro
     }
 
-    query += ftOffsetDes(paramIndex);
+    query += ftOffsetDes(paramIndex);//se agrega offset y limit para el paginado
     params.push(pageSize, startIndex);
-
+    //manda el resultado del contador
     const resultadoTotal = await client.query(contador, paramsCount);
     let resultCount = resultadoTotal.rows.length > 0 ? resultadoTotal.rows[0].totalrows : 0;
-
+    //resultado de la consulta
     const resultado = await client.query(query, params);
     client.release();
-
+    //devuelve el resultado de la consulta junto al total de registros
     return resultado.rows.length > 0 
       ? { rows: resultado.rows, Total: resultCount }
       : { rows: [], Total: 0 };
 
-  } catch (err) {
+  } catch (err) {//en caso de un error entra en el catch
     if (client) client.release();
-    console.log(err);
-    return err;
+    return err;//devuelve el error
   }
 };
 
-// export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDate, endDate) => {
-//   let client;
-//   try {
-//     client = await getClient();
-//     let query = selColumnsDescPaguinado;
-//     let params = [idbot];
-//     let paramIndex = 2;
-
-//     if (searchTerm) {
-//       query += ` AND (nombre ILIKE $${paramIndex} OR descripcion ILIKE $${paramIndex})`;
-//       params.push(`%${searchTerm}%`);
-//       paramIndex++;
-//     }
-//     if (filterType) {
-//       query += ` AND tipo_descuento = $${paramIndex}`;
-//       params.push(filterType);
-//       paramIndex++;
-//     }
-//     if (startDate) {
-//       query += ` AND fecha_inicio >= $${paramIndex}`;
-//       params.push(startDate);
-//       paramIndex++;
-//     }
-//     if (endDate) {
-//       query += ` AND fecha_fin <= $${paramIndex}`;
-//       params.push(endDate);
-//       paramIndex++;
-//     }
-
-//     const resultado = await client.query(query, params);
-//     client.release();
-//     return parseInt(resultado.rows[0].count);
-//   } catch (err) {
-//     if (client) client.release();
-//     logger.debug(err);
-//     console.log(err);
-//     return err;
-//   }
-// };
-
-export const getTotalDescuentos = async (idbot, searchTerm, filterType, startDate, endDate) => {
-  let client;
-  try {
-    client = await getClient();
-    let query = selColumnsDescPaguinado;
-    let params = [idbot];
-    let paramIndex = 2;
-
-    if (searchTerm) {
-      query += ftSearchTerm(paramIndex);
-      params.push(`%${searchTerm}%`);
-      paramIndex++;
-    }
-    if (filterType) {
-      query += ftType(paramIndex);
-      params.push(filterType);
-      paramIndex++;
-    }
-    if (startDate) {
-      query += ftStartDate(paramIndex);
-      params.push(startDate);
-      paramIndex++;
-    }
-    if (endDate) {
-      query += ftEndDate(paramIndex);
-      params.push(endDate);
-      paramIndex++;
-    }
-
-    const resultado = await client.query(query, params);
-    client.release();
-    return parseInt(resultado.rows[0].count);
-  } catch (err) {
-    if (client) client.release();
-    logger.debug(err);
-    console.log(err);
-    return err;
-  }
-};
-
+//consulta por id_descuento para la bitacora
 export const getDescuent = async function (id_descuento) {
-  console.log("getDescuent", id_descuento);
   let descuen;
   try {
     descuen = await getClient();
-
+    //consulta para ver valores por el id_descuento
     const query = `SELECT nombre, descripcion, tipo_descuento, valor, codigo
     FROM orders_bot.descuentos
     where id_descuento = $1;`;
-
+    //almacena el resultado de la consulta mas el id_descuento
     const resultado = await descuen.query(query, [id_descuento]);
     descuen.release();
-
+    //devuelve los valores de la consulta
     return resultado.rows.length > 0 ? resultado.rows : [false];
-  } catch (err) {
+  } catch (err) {//en caso de un error entra en el catch
     if (descuen) descuen.release();
     logger.debug(err);
-    console.log(err);
-    return err;
+    return err;//devuelve el error
   }
 };
