@@ -101,7 +101,7 @@ export const consultarPaginado = async (req, res) => {
       ...respJSON,
       codigo: HTTP_CODIGOS._200.contexto._000.codigo,
       mensaje: HTTP_CODIGOS._200.contexto._000.mensaje,
-      resultado: { descuentos, totalPages, page }
+      resultado: { descuentos, totalPages, page, totalItems }
     };
     res.status(HTTP_CODIGOS._200.estatus).send(respuesta);
   } catch (error) {//en caso de haber un error en algun lugar entramos en el catch
