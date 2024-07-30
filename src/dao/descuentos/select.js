@@ -38,14 +38,6 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
       paramsCount.push(`%${searchTerm}%`);
       paramIndex++;//aumenta paramIndex por si se ocupa otro filtro
     }
-    if (filterType) {//en caso de mandar un filtro por tipo de descuento entra aqui
-      const filter = ftType(paramIndex);//consulta por el filtro mandado
-      query += filter;//se agrega el filtro a la consulta de registros
-      contador += filter;//se agrega a la consulta para contar
-      params.push(filterType);
-      paramsCount.push(filterType);
-      paramIndex++;//aumenta paramIndex por si se ocupa otro filtro
-    }
     if (startDate) {//en caso de mandar un filtro por fecha inicio de descuento entra aqui
       const filter = ftStartDate(paramIndex);//consulta por el filtro mandado
       query += filter;//se agrega el filtro a la consulta de registros
