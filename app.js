@@ -9,6 +9,7 @@ import httpContext from 'express-http-context';
 import rateLimit from 'express-rate-limit'
 import routes from './src/rutas/index.js';
 import { stream } from "./src/funciones/utilerias/logger.js";
+import { firestoreInstance } from './src/middlewares/firebase.js'
 import swaggerDocument from './swagger.js';
 const puerto = process.env.port || 8080;
 const baseApi = process.env.BASE_API || '/api/service/v1';
@@ -23,6 +24,7 @@ const apiRequestLimiter = rateLimit({
 
 const app = express();
 
+app.use(firestoreInstance)
 app.use(
     helmet({
         contentSecurityPolicy: {
