@@ -5,6 +5,7 @@ import { logger } from "../../src/funciones/utilerias/logger.js";
 import esquema from "../funciones/validaciones/esquema.js";
 import bodys from "../configuraciones/esquemas/generales.js";
 import dao from "../dao/descuentos/index.js";
+import moment from 'moment-timezone';
 
 //consultar descuento por id_bot
 export const consultarDesByIdBot = async (req, res) => {
@@ -169,7 +170,9 @@ export const descuentos = async (req, res) => {
     };
     const valueArray = Object.values(values);//se juntan los detos de values
     const joinedValues = valueArray.join("  |  "); //se separan por medio de un | cada dato
+    const firestore = req.fsdb;
     let [resBD] = await dao.insertDescuento(descount);//se ingresa al dao para hacer el insert de los datos en descount
+
     if (!resBD) {//en caso de no poder insertarse 
       respuesta = {//manda un mensaje de error al procesar junto con un codigo 400
         ...respJSON,
@@ -180,6 +183,9 @@ export const descuentos = async (req, res) => {
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }//en caso de que se logre insertar continua
+
+    let found = await firestore.addDoc(`cat_descuentos_${descount.idbot_control}`, Number(resBD.id_descuento), { ...resBD, ...descount, created: moment(), updated: moment() })
+
     let bitdescu = { ...params.body.bitdescu };
 
     bitdescu = {//datos que se ingresaran en la bitacora
@@ -280,8 +286,10 @@ export const actDescuentos = async (req, res) => {
     const joinedValuesPast = Object.values(descOrig).join(" | ");//datos originales separados por un pipe
     const joinedValuesLast = Object.values(valuesBit).join(" | ");//datos que se cambiaran separados por un pipe
     const diferencias = compararObjetosDetalles(descOrig, valuesBit);//funcion que compara ambas cadenas y envia cuales son diferentes
+    const firestore = req.fsdb;
 
     let resBD = await dao.updateDes(descount);//funcion que entra al dao para actualizar un descuento
+
     if (!resBD) {//en caso de que no se pueda actualizar
       respuesta = {//manda un error al procesar el descuento
         ...respJSON,
@@ -291,6 +299,9 @@ export const actDescuentos = async (req, res) => {
       res.status(HTTP_CODIGOS._400.estatus).send(respuesta);
       return;
     }
+
+    firestore.updateDoc(`cat_descuentos_${descount.idbot_control}`, Number(descount.id_descuento), { ...descount, updated: moment() })
+
     let bitdescu = { ...params.body.bitdescu };
     bitdescu = {//datos que se ingresaran a la bitacora
       idbot: descount.idbot_control,
