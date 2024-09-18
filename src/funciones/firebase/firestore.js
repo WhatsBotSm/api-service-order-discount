@@ -1,11 +1,14 @@
 // Servicio para Firestore
 class Firestore {
-    constructor(db) {
+    constructor(db, UseFirestore) {
         this.db = db;
+        this.UseFirestore = UseFirestore;
     }
 
     async addDoc(collection, docId, doc) {
         try {
+            if (this.UseFirestore == "false") return;
+
             // Validar que collection y docId no sean nulos o vacíos
             if (!collection || !docId) {
                 throw new Error('Collection name and document ID must be non-empty strings.');
@@ -37,6 +40,8 @@ class Firestore {
     async getDocById(collection, docId) {
         console.log('getDocById', collection, docId);
         try {
+            if (this.UseFirestore == "false") return;
+
             // Validar que collection y docId no sean nulos o vacíos
             if (!collection || !docId) {
                 throw new Error('Collection name and document ID must be non-empty strings.');
@@ -59,6 +64,8 @@ class Firestore {
     async updateDoc(collection, docId, newVsnDoc) {
         console.log('updateDoc', collection, docId, newVsnDoc);
         try {
+            if (this.UseFirestore == "false") return;
+
             // Validar que collection y docId no sean nulos o vacíos
             if (!collection || !docId) {
                 throw new Error('Collection name and document ID must be non-empty strings.');
@@ -80,6 +87,8 @@ class Firestore {
     async queryDocs(collection, conditions) {
         console.log('queryDocs', collection, conditions);
         try {
+            if (this.UseFirestore == "false") return;
+            
             let query = this.db.collection(collection);
 
             // Añadir condiciones a la consulta
@@ -109,6 +118,8 @@ class Firestore {
     async deleteDoc(collection, docId) {
         console.log('deleteDoc', collection, docId);
         try {
+            if (this.UseFirestore == "false") return;
+
             const docRef = this.db.collection(collection).doc(docId);
             await docRef.delete();
             console.log('Doc deleted successfully');
