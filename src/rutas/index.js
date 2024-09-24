@@ -6,7 +6,7 @@ import swaggerDocument from '../../swagger.js';
 const router = express.Router();
 
 // api-doc
-router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Pedidos - [ productos ]'));
+router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Descuentos'));
 router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /************ingresar descuento*********** */
