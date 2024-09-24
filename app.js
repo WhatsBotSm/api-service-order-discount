@@ -64,7 +64,7 @@ morgan.token('header', (req) => JSON.stringify(req.headers));
 morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }))
 app.use(baseApi, routes);
-console.log(baseApi)
+console.log("baseApi", baseApi)
 
 app.listen(puerto, () => console.log(`Servicio listo en el puerto : ${puerto}`))
 
