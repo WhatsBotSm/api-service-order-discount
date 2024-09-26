@@ -39,6 +39,7 @@ app.use(
     })
 );
 
+app.set('trust proxy', '192.168.1.65')
 app.use(apiRequestLimiter);
 app.use(helmet());
 app.use(helmet.frameguard());
