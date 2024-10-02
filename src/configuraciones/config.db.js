@@ -6,7 +6,7 @@ const namePool = 'api-service-order-' + environment
 const dbConfig = global.gConfig.database_config_pg;
 
 const getPool = (strPool) => {
-  const credentials = environment === "stagedev" ? dbConfig : { connectionString: dbConfig.stringConnection };
+  const credentials = environment !== "production" ? dbConfig : { connectionString: dbConfig.stringConnection };
   if (!credentials) {
     throw new Error('Pool does not credentials');
   }
