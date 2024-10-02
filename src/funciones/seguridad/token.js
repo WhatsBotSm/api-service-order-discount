@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-const comprobratToken = function (userToken, seedBot) {
+const comprobarToken = function (userToken, seedBot) {
     try {
-        console.log("seedBot",seedBot)
         return jwt.verify(userToken, seedBot, (err, decoded) => {
             if (err) {
                 return false;
@@ -21,4 +20,4 @@ const signToken = (expires, config, seed) => {
         { expiresIn: expires });
 }
 
-export default { comprobratToken, signToken }
+export default { comprobarToken, signToken };
