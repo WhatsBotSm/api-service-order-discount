@@ -1,4 +1,4 @@
-import tokenApi from '../funciones/utilerias/token.js';
+import tokenApi from '../funciones/seguridad/token.js';
 import * as cnfBot from '../dao/configbot.js';
 const BASE_URL = process.env.BASE_API || '/api/service';
 const UseFirestore = process.env.USEFIRESTORE
@@ -21,7 +21,7 @@ const verificaToken = async (req, res, next) => {
             found = await firestore.getDocById('APPS_WBSM', Number(idUser))
         }
         console.log(found)
-        const decoded = tokenApi.comprobratToken(userToken, found.seedbot);
+        const decoded = tokenApi.comprobarToken(userToken, found.seedbot);
         if (decoded) {
             const fullUrl = `${BASE_URL}${req.route.path}`;
             console.log(fullUrl);
