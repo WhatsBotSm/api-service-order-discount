@@ -6,14 +6,19 @@ import swaggerDocument from '../../swagger.js';
 const router = express.Router();
 
 // api-doc
-router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Pedidos - [ productos ]'));
+router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Descuentos'));
 router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 /************ingresar descuento*********** */
 router.post('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.descuentos);
+
 /***********actualizar descuento********* */
 router.put('/descuento/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.actDescuentos);
-/**************consultar descuento por id_bot, con paguinado y filtros*************/
+
+/**************consultar descuento por id_bot, con paginado y filtros*************/
 router.get('/descuentos/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarPaginado);
+
 /**************consultar descuento por id_bot********** */
 router.get('/descuento/idbot/:idbot_control', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDesByIdBot);
+
 export default router;

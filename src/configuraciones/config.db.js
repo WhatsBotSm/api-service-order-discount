@@ -1,12 +1,12 @@
 import pkg from 'pg';
 const { Pool } = pkg;
 const pool = { conexion: {} };
-const environment = process.env.NODE_ENV || "local";
+const environment = process.env.NODE_ENV || "stagedev";
 const namePool = 'api-service-order-' + environment
 const dbConfig = global.gConfig.database_config_pg;
 
 const getPool = (strPool) => {
-  const credentials = environment === "local" ? dbConfig : { connectionString: dbConfig.stringConnection };
+  const credentials = environment !== "production" ? dbConfig : { connectionString: dbConfig.stringConnection };
   if (!credentials) {
     throw new Error('Pool does not credentials');
   }

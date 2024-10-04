@@ -11,7 +11,7 @@ import routes from './src/rutas/index.js';
 import { stream } from "./src/funciones/utilerias/logger.js";
 import { firestoreInstance } from './src/middlewares/firebase.js'
 import swaggerDocument from './swagger.js';
-const puerto = process.env.port || 8080;
+const puerto = process.env.PORT || 8080;
 const baseApi = process.env.BASE_API || '/api/service/v1';
 const NUM_REQ_MAX_API = Number(process.env.NUM_REQ_MAX_API) || 25;
 
@@ -39,6 +39,7 @@ app.use(
     })
 );
 
+app.set('trust proxy', '192.168.1.65')
 app.use(apiRequestLimiter);
 app.use(helmet());
 app.use(helmet.frameguard());
@@ -64,7 +65,7 @@ morgan.token('header', (req) => JSON.stringify(req.headers));
 morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }))
 app.use(baseApi, routes);
-console.log(baseApi)
+console.log("baseApi", baseApi)
 
 app.listen(puerto, () => console.log(`Servicio listo en el puerto : ${puerto}`))
 
