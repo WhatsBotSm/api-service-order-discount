@@ -1,6 +1,9 @@
 import tokenApi from '../funciones/seguridad/token.js';
 import * as cnfBot from '../dao/configbot.js';
+import { obtenerLLaves, descifrarLLaveInt, ofuscaText, aclaraText, firmarBody } from '../funciones/utilerias/RSABot.js';
+
 const BASE_URL = process.env.BASE_API || '/api/service';
+const STORE_BOT = process.env.STORE_BOT || "STORE_BOT";
 const UseFirestore = process.env.USEFIRESTORE
 
 const verificaToken = async (req, res, next) => {
@@ -12,7 +15,7 @@ const verificaToken = async (req, res, next) => {
         const idUser = req.headers.identificador_usuario;
         console.log('UseFirestore', UseFirestore);
         let found = null;
-        if (UseFirestore=="false") {
+        if (UseFirestore == "false") {
             let [foundFsdb] = await cnfBot.getConfigBotById(idUser);
             found = foundFsdb
         }
@@ -51,4 +54,35 @@ const verificaToken = async (req, res, next) => {
     }
 };
 
-export default { verificaToken }
+const verificaLlave = async (req, res, next) => {
+    const mensajeError = 'Al menos existe un error.';
+    const mensajeNoAuth = '"El usuario no tiene los permisos para el recurso."';
+    try {
+        const rtdb = req.rtdb;
+
+        let collection = `${STORE_BOT}/KEY_BOT`;
+        let idBotOff = ofuscaText(`R54K3YS.${req.headers.identificador_usuario}`);
+
+        const llaves = await rtdb.getDocById(collection, idBotOff);
+
+        let pass = aclaraText(llaves.pass);
+        let seed = aclaraText(llaves.seed);
+
+        let { keysRSA, epoch } = obtenerLLaves(llaves.public, pass);
+        let { key } = descifrarLLaveInt(keysRSA.bot, seed, epoch, pass, true);
+
+        next();
+    } catch (error) {
+        res.statusCode = 500;
+        res.json({
+            codigo: -1,
+            mensaje: mensajeError,
+            errores: {
+                code: 500,
+                message: "Error Interno."
+            }
+        });
+    }
+};
+
+export default { verificaToken, verificaLlave }
