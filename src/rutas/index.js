@@ -10,7 +10,7 @@ router.get('/', (req, res) => res.send('WHATSBOTSM - Servicio de Descuentos'));
 router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /************ingresar descuento*********** */
-router.post('/descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.descuentos);
+router.post('/descuento', middlewares.validaHeaders, middlewares.verificaLlave, controllers.descuentos.descuentos);
 
 /***********actualizar descuento********* */
 router.put('/descuento/:id_descuento', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.actDescuentos);

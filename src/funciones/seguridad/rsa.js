@@ -9,8 +9,9 @@ const ENCODE_RSA = process.env.ENCODE_RSA || "base64";
 const ENCODE_PRMS_CRP = process.env.ENCODE_PRMS_CRP || "hex";
 const RSA_MODULUS_LENGTH = 4096;
 
-export const generaLLaves = ({ password, seed, expiresIn, otp }) => {
+export const generaLLaves = ({ password, seed, epoch, expiresIn, otp, data }) => {
     try {
+        if (!password) throw new Error("No se es posible generar las llaves.");
         const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
             modulusLength: RSA_MODULUS_LENGTH,
             publicKeyEncoding: {
@@ -27,8 +28,8 @@ export const generaLLaves = ({ password, seed, expiresIn, otp }) => {
         });
 
         return {
-            publicKey: encriptaLlave({ expiresIn, seed, password, otp, key: publicKey }),
-            privateKey: encriptaLlave({ expiresIn, seed, password, otp, key: privateKey }),
+            publicKey: encriptaLlave({ isPublic: true, key: publicKey, expiresIn, seed, epoch, password, otp, data }),
+            privateKey: encriptaLlave({ key: privateKey, expiresIn, seed, epoch, password, otp, data }),
         };
     } catch (error) {
         console.error("Error al generar llaves:", error);
@@ -36,13 +37,15 @@ export const generaLLaves = ({ password, seed, expiresIn, otp }) => {
     }
 };
 
-function encriptaLlave({ key, expiresIn, seed, password, otp }) {
+function encriptaLlave({ isPublic, key, expiresIn, seed, epoch, password, otp, data }) {
     try {
+        if (!seed && !otp) throw new Error("No es posible encriptar las llaves.");
         const SALT = crypto.randomBytes(16);
         const IV = crypto.randomBytes(16);
         const keyCrpDeriv = crypto.pbkdf2Sync(password, SALT, PBKDF2_ITERATIONS, KEY_LENGTH, ALGORITHM);
         const cipher = crypto.createCipheriv(CIFRADO, keyCrpDeriv, IV);
-        cipher.setAAD(Buffer.from(otp || seed));
+        const secretAdd = otp ? `${otp}.${epoch}` : `${seed}.${epoch}`
+        cipher.setAAD(Buffer.from(secretAdd));
 
         let encrypted = cipher.update(key, "utf8", ENCODE_RSA);
         encrypted += cipher.final(ENCODE_RSA);
@@ -50,40 +53,31 @@ function encriptaLlave({ key, expiresIn, seed, password, otp }) {
 
         const crypParams = `s+${SALT.toString(ENCODE_PRMS_CRP)}|v+${IV.toString(ENCODE_PRMS_CRP)}`;
         const llaveFinal = `${crypParams}:${encrypted}:a+${authTag.toString(ENCODE_PRMS_CRP)}`;
-        return jwtk.signToken(expiresIn || "35d", { key: Buffer.from(llaveFinal).toString(ENCODE_RSA), seed }, otp || password);
+        let signToken = isPublic ? password : otp || seed;
+        return jwtk.signToken(expiresIn || "5d", { data, key: Buffer.from(llaveFinal).toString(ENCODE_RSA) }, `${signToken}.${epoch}`);
     } catch (error) {
         console.error("Error al encriptar la llave:", error);
         throw new Error("No se pudo encriptar la llave.");
     }
 }
 
-function renuevaLlave({ seed, password, otp, key }) {
+export const renuevaLlave = ({ password, otp, encrypted, expiresKey }) => {
     try {
-        const SALT = crypto.randomBytes(16);
-        const IV = crypto.randomBytes(16);
-        const keyCrp = crypto.pbkdf2Sync(password, SALT, PBKDF2_ITERATIONS, KEY_LENGTH, ALGORITHM);
-        const cipher = crypto.createCipheriv(CIFRADO, keyCrp, IV);
-        cipher.setAAD(Buffer.from(seed));
-
-        let encrypted = cipher.update(key, "utf8", ENCODE_RSA);
-        encrypted += cipher.final(ENCODE_RSA);
-        const authTag = cipher.getAuthTag();
-
-        const configKeys = `s+${SALT.toString(ENCODE_PRMS_CRP)}|v+${IV.toString(ENCODE_PRMS_CRP)}`;
-        const llaveFinal = `${configKeys}:${encrypted}:a+${authTag.toString(ENCODE_PRMS_CRP)}`;
-        jwtk.signToken(expiresIn || "35d", { key: Buffer.from(llaveFinal).toString(ENCODE_RSA), seed }, otp || password);
-        return;
+        if (!password && !otp) throw new Error("No es posible encriptar las llaves.");
+        return jwtk.signToken(expiresKey || "5d", { key: Buffer.from(encrypted).toString(ENCODE_RSA) }, otp || password);
     } catch (error) {
         console.error("Error al encriptar la llave:", error);
         throw new Error("No se pudo encriptar la llave.");
     }
 }
 
-export const desencriptaLlave = async ({ key, seed, password, otp }) => {
+export const desencriptaLlave = ({ isPublic, key, seed, epoch, password, otp }) => {
     try {
-        const { config } = jwtk.comprobarToken(key, otp || password);
+        let signToken = isPublic ? password : otp || seed;
+        const { config } = jwtk.comprobarToken(key, `${signToken}.${epoch}`);
         key = config?.key || null;
         if (!key) return;
+        const secretAdd = otp ? `${otp}.${epoch}` : `${seed}.${epoch}`;
         const llaveDescomprimida = Buffer.from(key, ENCODE_RSA).toString();
         const [arrConf, encryptedData, authTagData] = llaveDescomprimida.split(":");
 
@@ -94,12 +88,12 @@ export const desencriptaLlave = async ({ key, seed, password, otp }) => {
         const authTag = Buffer.from(authTagData.split("+")[1], ENCODE_PRMS_CRP);
         const keyCrp = crypto.pbkdf2Sync(password, configKeys.s, PBKDF2_ITERATIONS, KEY_LENGTH, ALGORITHM);
         const decipher = crypto.createDecipheriv(CIFRADO, keyCrp, configKeys.v);
-        decipher.setAAD(Buffer.from(otp || seed));
+        decipher.setAAD(Buffer.from(secretAdd));
         decipher.setAuthTag(authTag);
 
         let decrypted = decipher.update(encryptedData, ENCODE_RSA, "utf8");
         decrypted += decipher.final("utf8");
-        return decrypted;
+        return { key: decrypted, data: config?.data };
     } catch (error) {
         console.error("Error al desencriptar la llave:", error);
         throw new Error("No se pudo desencriptar la llave.");

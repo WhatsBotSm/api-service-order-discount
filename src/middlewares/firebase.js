@@ -1,10 +1,14 @@
-import { fsdb } from '../configuraciones/firebase.js';
+import { fsdb, rtdb } from '../configuraciones/firebase.js';
 import Firestore from "../funciones/firebase/firestore.js";
+import RealtimeDatabase from "../funciones/firebase/realTimeDB.js";
+
 const UseFirestore = process.env.USEFIRESTORE;
 
 const firestoreService = new Firestore(fsdb, UseFirestore);
+const realTimeDBService = new RealtimeDatabase(rtdb);
 
 export const firestoreInstance = async (req, res, next) => {
     req.fsdb = firestoreService;
+    req.rtdb = realTimeDBService;
     next();
 };
