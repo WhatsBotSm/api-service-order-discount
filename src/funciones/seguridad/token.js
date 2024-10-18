@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-const comprobratToken = function (userToken, seedBot) {
+const comprobarToken = function (userToken, seedBot) {
     try {
-        console.log("seedBot",seedBot)
         return jwt.verify(userToken, seedBot, (err, decoded) => {
             if (err) {
                 return false;
@@ -15,10 +14,9 @@ const comprobratToken = function (userToken, seedBot) {
     }
 };
 
-const signToken = (expires, config, seed) => {
-    return jwt.sign(
-        { config }, seed,
-        { expiresIn: expires });
+const signToken = (expires, config, seed, algoritmo) => {
+    let opts = { algorithm: algoritmo || 'HS256', expiresIn: expires };
+    return jwt.sign({ config }, seed, opts);
 }
 
-export default { comprobratToken, signToken }
+export default { comprobarToken, signToken };

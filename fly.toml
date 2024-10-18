@@ -10,7 +10,9 @@ processes = []
   PORT = "8080"
   NODE_ENV = "production"
   BASE_API="/api/descuento/v1"
-  API_URL_ALERTA="VALUE_API_URL_ALERTA"
+  NUM_REQ_MAX_API=100
+  STORE_BOT='WHATSBOTSM'
+  USEFIRESTORE='true'
 
 [experimental]
   auto_rollback = true
