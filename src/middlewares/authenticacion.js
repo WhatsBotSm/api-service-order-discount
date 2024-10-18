@@ -23,7 +23,6 @@ const verificaToken = async (req, res, next) => {
             const firestore = req.fsdb;
             found = await firestore.getDocById('APPS_WBSM', Number(idUser))
         }
-        console.log(found)
         const decoded = tokenApi.comprobarToken(userToken, found.seedbot);
         if (decoded) {
             const fullUrl = `${BASE_URL}${req.route.path}`;
