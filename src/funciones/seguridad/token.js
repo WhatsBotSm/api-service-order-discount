@@ -14,10 +14,9 @@ const comprobarToken = function (userToken, seedBot) {
     }
 };
 
-const signToken = (expires, config, seed) => {
-    return jwt.sign(
-        { config }, seed,
-        { expiresIn: expires });
+const signToken = (expires, config, seed, algoritmo) => {
+    let opts = { algorithm: algoritmo || 'HS256', expiresIn: expires };
+    return jwt.sign({ config }, seed, opts);
 }
 
 export default { comprobarToken, signToken };
