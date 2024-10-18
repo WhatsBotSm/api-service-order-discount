@@ -1,31 +1,37 @@
-import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getDatabase } from 'firebase-admin/database';
+import { getAuth } from 'firebase-admin/auth';
 import fs from 'fs';
-const serviceAccount = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountKey.json', 'utf8'));
-const serviceAccountDev = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountKeyDev.json', 'utf8'));
-const serviceAccountQA = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountKeyQA.json', 'utf8'));
-
-const entorno = process.env.NODE_ENV;
 
 let useCredentials = null;
+const entorno = process.env.NODE_ENV;
 
 switch (entorno) {
-    case "stagedev":
-        useCredentials = serviceAccountDev
-        break
-    case "stageqa":
-        useCredentials = serviceAccountQA
-        break
+    case 'stagedev':
+        const serviceAccountDev = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountDev.json', 'utf8'));
+        useCredentials = serviceAccountDev;
+        break;
+    case 'stageqa':
+        const serviceAccountQa = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountQa.json', 'utf8'));
+        useCredentials = serviceAccountQa
+        break;
+    case 'stageuat':
+        const serviceAccountUat = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountUat.json', 'utf8'));
+        useCredentials = serviceAccountUat
+        break;
     default:
-        useCredentials = serviceAccount
-        break
+        const serviceAccount = JSON.parse(fs.readFileSync('./src/configuraciones/firebase/serviceAccountKey.json', 'utf8'));
+        useCredentials = serviceAccount;
 }
 
 initializeApp({
-    credential: cert(useCredentials) // Usa el archivo JSON para la autenticación
+    credential: cert(useCredentials.SDK),
+    databaseURL: useCredentials.RTDB
 });
 
 const fsdb = getFirestore();
-// console.log(fsdb);
+const rtdb = getDatabase();
+const auth = getAuth();
 
-export { fsdb };
+export { fsdb, rtdb, auth };
