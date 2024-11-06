@@ -82,7 +82,7 @@ class RealtimeDatabase {
             const snapshot = await ref.once('value');
             if (snapshot.exists()) {
                 let conf = snapshot.val();
-                conf.seedbot = aclaraText(conf.seedbot)
+                conf.cuenta.seedbot = aclaraText(conf.cuenta.seedbot)
                 return conf.cuenta;
             }
             return null;
