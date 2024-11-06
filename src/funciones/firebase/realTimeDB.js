@@ -1,3 +1,5 @@
+const STORE_BOT = process.env.STORE_BOT || "STORE_BOT";
+import { aclaraText, ofuscaText } from "../utilerias/RSABot.js";
 class RealtimeDatabase {
     constructor(db, useRealtimeDB = true) {
         this.db = db;
@@ -49,6 +51,39 @@ class RealtimeDatabase {
             const snapshot = await ref.once('value');
             if (snapshot.exists()) {
                 return snapshot.val();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error al obtener el documento:', error);
+            throw error;
+        }
+    }
+
+    async getkeysRSA(docId) {
+        try {
+            const path = `${STORE_BOT}/KEY_BOT/${ofuscaText(`R54K3YS.${docId}`)}`;
+            const ref = this.db.ref(path);
+            console.log('path:', path);
+            const snapshot = await ref.once('value');
+            if (snapshot.exists()) {
+                return snapshot.val();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error al obtener el documento:', error);
+            throw error;
+        }
+    }
+    async getCuentaBot(docId) {
+        try {
+            const path = `CONFIGBOT/${ofuscaText(`CNFGBT.${docId}`)}`;
+            const ref = this.db.ref(path);
+            console.log('path:', path);
+            const snapshot = await ref.once('value');
+            if (snapshot.exists()) {
+                let conf = snapshot.val();
+                conf.cuenta.seedbot = aclaraText(conf.cuenta.seedbot)
+                return conf.cuenta;
             }
             return null;
         } catch (error) {

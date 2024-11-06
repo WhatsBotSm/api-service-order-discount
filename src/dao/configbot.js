@@ -18,6 +18,6 @@ export const getConfigBotById = async function (Id) {
         if (client) client.release();
         logger.debug(err);
         console.log(err)
-        return err;
+        return [false];
     }
 }
