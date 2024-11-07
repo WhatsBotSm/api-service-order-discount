@@ -1,9 +1,7 @@
 import tokenApi from '../funciones/seguridad/token.js';
 import * as cnfBot from '../dao/configbot.js';
-import { obtenerLLaves, descifrarLLaveInt, ofuscaText, aclaraText, firmarBody } from '../funciones/utilerias/RSABot.js';
-
+import { obtenerLLaves, descifrarLLaveInt, aclaraText } from '../funciones/utilerias/RSABot.js';
 const BASE_URL = process.env.BASE_API || '/api/service';
-const STORE_BOT = process.env.STORE_BOT || "STORE_BOT";
 const UseFirestore = process.env.USEFIRESTORE
 
 const verificaToken = async (req, res, next) => {
@@ -16,13 +14,12 @@ const verificaToken = async (req, res, next) => {
         console.log('UseFirestore', UseFirestore);
         let found = null;
         if (UseFirestore == "false") {
-            let [foundFsdb] = await cnfBot.getConfigBotById(idUser);
-            found = foundFsdb
+            [found] = await cnfBot.getConfigBotById(idUser);
+        } else {
+            const realTimeDB = req.rtdb;
+            found = await realTimeDB.getCuentaBot(Number(idUser))
         }
-        else {
-            const firestore = req.fsdb;
-            found = await firestore.getDocById('APPS_WBSM', Number(idUser))
-        }
+
         const decoded = tokenApi.comprobarToken(userToken, found.seedbot);
         if (decoded) {
             const fullUrl = `${BASE_URL}${req.route.path}`;
@@ -57,19 +54,13 @@ const verificaLlave = async (req, res, next) => {
     const mensajeError = 'Al menos existe un error.';
     const mensajeNoAuth = '"El usuario no tiene los permisos para el recurso."';
     try {
-        const rtdb = req.rtdb;
-
-        let collection = `${STORE_BOT}/KEY_BOT`;
-        let idBotOff = ofuscaText(`R54K3YS.${req.headers.identificador_usuario}`);
-
-        const llaves = await rtdb.getDocById(collection, idBotOff);
-
+        const idUser = req.headers.identificador_usuario;
+        const realTimeDB = req.rtdb;
+        const llaves = await realTimeDB.getkeysRSA(Number(idUser))
         let pass = aclaraText(llaves.pass);
         let seed = aclaraText(llaves.seed);
-
         let { keysRSA, epoch } = obtenerLLaves(llaves.public, pass);
         let { key } = descifrarLLaveInt(keysRSA.bot, seed, epoch, pass, true);
-
         next();
     } catch (error) {
         res.statusCode = 500;
@@ -83,5 +74,4 @@ const verificaLlave = async (req, res, next) => {
         });
     }
 };
-
 export default { verificaToken, verificaLlave }
