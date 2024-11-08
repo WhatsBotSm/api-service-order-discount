@@ -32,7 +32,7 @@ class Firestore {
             // console.log('Doc added successfully');
             return tmpDoc;
         } catch (error) {
-            // console.error('Error adding Doc:', error);
+            console.error('Error adding Doc:', error);
             return;
         }
     }
@@ -56,7 +56,7 @@ class Firestore {
             }
             return null;
         } catch (error) {
-            // console.error('Error getting Doc:', error);
+            console.error('Error getting Doc:', error);
             throw error;
         }
     }
@@ -78,7 +78,7 @@ class Firestore {
             // console.log('Doc updated successfully');
             return newVsnDoc;
         } catch (error) {
-            // console.error('Error updating Doc:', error);
+            console.error('Error updating Doc:', error);
             throw error;
         }
     }
@@ -110,7 +110,7 @@ class Firestore {
 
             return results;
         } catch (error) {
-            // console.error('Error querying documents:', error);
+            console.error('Error querying documents:', error);
             throw error;
         }
     }
@@ -125,7 +125,7 @@ class Firestore {
             // console.log('Doc deleted successfully');
             return true;
         } catch (error) {
-            // console.error('Error deleting Doc:', error);
+            console.error('Error deleting Doc:', error);
             throw error;
         }
     }

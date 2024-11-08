@@ -30,7 +30,7 @@ class RealtimeDatabase {
             // console.log('Documento agregado exitosamente');
             return tmpDoc;
         } catch (error) {
-            // console.error('Error al agregar el documento:', error);
+            console.error('Error al agregar el documento:', error);
             return;
         }
     }
@@ -54,7 +54,7 @@ class RealtimeDatabase {
             }
             return null;
         } catch (error) {
-            // console.error('Error al obtener el documento:', error);
+            console.error('Error al obtener el documento:', error);
             throw error;
         }
     }
@@ -70,7 +70,7 @@ class RealtimeDatabase {
             }
             return null;
         } catch (error) {
-            // console.error('Error al obtener el documento:', error);
+            console.error('Error al obtener el documento:', error);
             throw error;
         }
     }
@@ -87,7 +87,7 @@ class RealtimeDatabase {
             }
             return null;
         } catch (error) {
-            // console.error('Error al obtener el documento:', error);
+            console.error('Error al obtener el documento:', error);
             throw error;
         }
     }
@@ -109,7 +109,7 @@ class RealtimeDatabase {
             // console.log('Documento actualizado exitosamente');
             return newVsnDoc;
         } catch (error) {
-            // console.error('Error al actualizar el documento:', error);
+            console.error('Error al actualizar el documento:', error);
             throw error;
         }
     }
@@ -125,7 +125,7 @@ class RealtimeDatabase {
             // console.log('Documento eliminado exitosamente');
             return true;
         } catch (error) {
-            // console.error('Error al eliminar el documento:', error);
+            console.error('Error al eliminar el documento:', error);
             throw error;
         }
     }
