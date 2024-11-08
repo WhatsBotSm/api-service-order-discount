@@ -1,6 +1,7 @@
 import conexion from './env.conexion.js'
 import dotenv from 'dotenv';
 import groupBy from 'object.groupby';
+import { logger } from '../funciones/utilerias/logger.js';
 // import { desencriptar } from '../funciones/utilerias/desencriptar';
 // import { logger } from '../funciones/utilerias/logger';
 // import fs from 'fs';
@@ -25,4 +26,4 @@ global.gConfig = finalConfig;
 
 export default finalConfig
 
-console.log('Environment configurado: ' + environment)
+logger.info('Environment configurado: ' + environment)

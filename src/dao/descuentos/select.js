@@ -4,7 +4,6 @@ import { selColumnsDescByBot, selColumnsDesc, selColumnsDescPaguinado,ftSearchTe
 
 //consulta por id_bot
 export const getDesByIdBot = async function (id_bot) {
-  //console.log("Select Descuentos");
   let descuen;
   try {
     descuen = await getClient();
@@ -22,7 +21,6 @@ export const getDesByIdBot = async function (id_bot) {
 
 //consulta por id_bot con filtros y paguinado
 export const getDescuentosPaginados = async (idbot, startIndex, pageSize, searchTerm, filterType, startDate, endDate) => {
-  //console.log("Select Descuentos");
   let client;
   try {
     client = await getClient();
@@ -78,7 +76,6 @@ export const getDescuentosPaginados = async (idbot, startIndex, pageSize, search
 
 //consulta por id_descuento para la bitacora
 export const getDescuent = async function (id_descuento) {
-  //console.log("Select Descuentos");
   let descuen;
   try {
     descuen = await getClient();

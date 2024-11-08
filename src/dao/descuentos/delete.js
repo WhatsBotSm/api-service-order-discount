@@ -2,7 +2,6 @@ import { logger } from '../../funciones/utilerias/logger.js';
 import { getClient } from '../../configuraciones/config.db.js';
 
 export const borrar = async function (id_descuento) {
-    //console.log("getPedidoById", id_descuento);
     let client;
     try {
       client = await getClient();
@@ -17,7 +16,7 @@ export const borrar = async function (id_descuento) {
     } catch (err) {
       if (client) client.release();
       logger.debug(err);
-      console.log(err)
+      logger.error(err)
       return err;
     }
   }

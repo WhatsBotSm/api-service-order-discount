@@ -13,7 +13,6 @@ const enviarAlert = async function (message, phone) {
 };
 
 const ConsumirServicio = async (url, name) => {
-    // console.log('Request: ' + JSON.stringify(url));
     return axios
         .request(url)
         .then((res) => {
@@ -21,7 +20,7 @@ const ConsumirServicio = async (url, name) => {
             return res.data;
         })
         .catch((err) => {
-            console.log(name + " | Error Response: ", err?.response?.status);
+            logger.info(name + " | Error Response: ", err?.response?.status);
             logger.debug({
                 "ERROR": true, stack: {
                     function: "ConsumirServicio ",
