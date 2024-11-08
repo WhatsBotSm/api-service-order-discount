@@ -1,6 +1,7 @@
 import tokenApi from '../funciones/seguridad/token.js';
 import * as cnfBot from '../dao/configbot.js';
 import { obtenerLLaves, descifrarLLaveInt, aclaraText } from '../funciones/utilerias/RSABot.js';
+import { logger } from '../funciones/utilerias/logger.js';
 const BASE_URL = process.env.BASE_API || '/api/service';
 const UseFirestore = process.env.USEFIRESTORE
 
@@ -11,7 +12,7 @@ const verificaToken = async (req, res, next) => {
         const method = req.route.stack[0].method;
         const userToken = req.get('idsession') || '';
         const idUser = req.headers.identificador_usuario;
-        console.log('UseFirestore', UseFirestore);
+        logger.info('UseFirestore', UseFirestore);
         let found = null;
         if (UseFirestore == "false") {
             [found] = await cnfBot.getConfigBotById(idUser);
@@ -23,8 +24,8 @@ const verificaToken = async (req, res, next) => {
         const decoded = tokenApi.comprobarToken(userToken, found.seedbot);
         if (decoded) {
             const fullUrl = `${BASE_URL}${req.route.path}`;
-            console.log(fullUrl);
-            console.log('Metodo', method.toUpperCase());
+            logger.info(fullUrl);
+            logger.info('Metodo', method.toUpperCase());
             next();
         } else {
             res.statusCode = 401;

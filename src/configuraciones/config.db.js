@@ -4,6 +4,7 @@ const pool = { conexion: {} };
 const environment = process.env.NODE_ENV || "stagedev";
 const namePool = 'api-service-order-' + environment
 const dbConfig = global.gConfig.database_config_pg;
+import { logger } from '../funciones/utilerias/logger';
 
 const getPool = (strPool) => {
   const credentials = environment !== "production" ? dbConfig : { connectionString: dbConfig.stringConnection };
@@ -23,6 +24,6 @@ const getPool = (strPool) => {
 export const getClient = (strPool) => {
   let poolQuery = strPool || namePool;
   getPool(poolQuery);
-  console.log(poolQuery)
+  logger.info(poolQuery)
   return pool.conexion[poolQuery].connect();
 }
