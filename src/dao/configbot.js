@@ -2,7 +2,7 @@ import { logger } from '../../src/funciones/utilerias/logger.js';
 import { getClient } from '../../src/configuraciones/config.db.js';
 
 export const getConfigBotById = async function (Id) {
-    console.log("getConfigBotById", Id);
+    //console.log("getConfigBotById", Id);
     let client;
     try {
         client = await getClient();
@@ -18,6 +18,6 @@ export const getConfigBotById = async function (Id) {
         if (client) client.release();
         logger.debug(err);
         console.log(err)
-        return err;
+        return [false];
     }
 }

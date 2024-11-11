@@ -2,7 +2,7 @@ import { logger } from '../../funciones/utilerias/logger.js';
 import { getClient } from '../../configuraciones/config.db.js';
 
 export const borrar = async function (id_descuento) {
-    console.log("getPedidoById", id_descuento);
+    //console.log("getPedidoById", id_descuento);
     let client;
     try {
       client = await getClient();
