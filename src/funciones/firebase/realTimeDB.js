@@ -59,9 +59,9 @@ class RealtimeDatabase {
         }
     }
 
-    async getkeysRSA(docId) {
+    async getkeysRSA(phone) {
         try {
-            const path = `${STORE_BOT}/KEY_BOT/${ofuscaText(`R54K3YS.${docId}`)}`;
+            const path = `${STORE_BOT}/KEY_BOT/${ofuscaText(`${phone}`)}`;
             const ref = this.db.ref(path);
             // console.log('path:', path);
             const snapshot = await ref.once('value');
@@ -74,15 +74,15 @@ class RealtimeDatabase {
             throw error;
         }
     }
-    async getCuentaBot(docId) {
+    async getCuentaBot(phone) {
         try {
-            const path = `CONFIGBOT/${ofuscaText(`CNFGBT.${docId}`)}`;
+            const path = `CONFIGBOT/${ofuscaText(`${phone}`)}`;
             const ref = this.db.ref(path);
             // console.log('path:', path);
             const snapshot = await ref.once('value');
             if (snapshot.exists()) {
                 let conf = snapshot.val();
-                conf.cuenta.seedbot = aclaraText(conf.cuenta.seedbot)
+                conf.cuenta.seedbot = conf?.cuenta?.seedbot ? aclaraText(conf.cuenta.seedbot) : 'seedbot';
                 return conf.cuenta;
             }
             return null;

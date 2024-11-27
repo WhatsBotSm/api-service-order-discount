@@ -5,6 +5,7 @@ on:
       - main
 env:
   FLY_API_TOKEN: ${{ secrets.TOKEN_FLY }}
+  API_URL_ADMIN: ${{ secrets.URL_ADMIN }}
 jobs:
   # This workflow contains multiple jobs
   push_docker:
