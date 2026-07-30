@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit';
 import routes from './src/rutas/index.js';
 import { stream } from "./src/funciones/utilerias/logger.js";
 import { firestoreInstance } from './src/middlewares/firebase.js';
+import { logger } from './src/funciones/utilerias/logger.js'
 
 const puerto = process.env.PORT || 8080;
 const baseApi = process.env.BASE_API || '/api/service/v1';
@@ -69,8 +70,8 @@ morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }));
 
 app.use(baseApi, routes);
-//console.log("baseApi", baseApi);
+//logger.info("baseApi", baseApi);
 
-app.listen(puerto, () => console.log(`Servicio listo en el puerto : ${puerto}`));
+app.listen(puerto, () => logger.info(`Servicio listo en el puerto : ${puerto}`));
 
 export default app;
