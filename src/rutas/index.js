@@ -26,6 +26,7 @@ router.get('/ruta1', middlewares.validaHeaders, middlewares.verificaToken, contr
 
 /**************Nueva ruta********** */
 router.get('/ruta2', middlewares.validaHeaders, middlewares.verificaToken, controllers.descuentos.consultarDesByIdBot);
+   
 
 
 export default router;
