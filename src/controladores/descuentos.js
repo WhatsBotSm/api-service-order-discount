@@ -7,7 +7,7 @@ import bodys from "../configuraciones/esquemas/generales.js";
 import dao from "../dao/descuentos/index.js";
 import moment from 'moment-timezone';
 
-//consultar descuento por id_bot
+//consultar descuento por id_botadfasdgsdfgh
 export const consultarDesByIdBot = async (req, res) => {
   let respuesta = {
     ...respJSON,
