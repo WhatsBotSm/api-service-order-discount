@@ -1,4 +1,5 @@
-module.exports.apps = [{
+module.exports.apps = [
+  {
     name: "whtsb-api-service-order-v1",
     script: "./app.js",
     watch: false,
@@ -6,4 +7,5 @@ module.exports.apps = [{
     exec_mode: "cluster",
     instances: 1,
     cron_restart: "59 23 * * *"
-}]
+  }
+];

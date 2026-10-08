@@ -1,6 +1,6 @@
 export default {
-    "codigo": "",
-    "errores": [],
-    "mensaje": "",
-    "resultado": []
-}
+  codigo: "",
+  errores: [],
+  mensaje: "",
+  resultado: []
+};

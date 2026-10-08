@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node ./app.js",
     "devmode": "nodemon ./app.js",
+    "fix": "eslint --fix . && prettier --write .",
     "test": "vitest",
     "test-sync": "vitest run --pool=forks",
     "lint": "eslint .  --ext .js",
