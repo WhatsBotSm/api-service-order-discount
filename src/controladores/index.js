@@ -1,4 +1,4 @@
-import * as descuentos from './descuentos.js';
+import * as descuentos from "./descuentos.js";
 
 export default {
   descuentos

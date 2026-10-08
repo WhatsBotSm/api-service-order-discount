@@ -1,32 +1,29 @@
-import './src/configuraciones/config_api.js';
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import * as uuid from 'uuid';
-import httpContext from 'express-http-context';
-import rateLimit from 'express-rate-limit';
-import routes from './src/rutas/index.js';
-import { stream } from "./src/funciones/utilerias/logger.js";
-import { firestoreInstance } from './src/middlewares/firebase.js';
-import { logger } from './src/funciones/utilerias/logger.js'
+import "./src/configuraciones/config_api.js";
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import * as uuid from "uuid";
+import httpContext from "express-http-context";
+import { rateLimit } from "express-rate-limit";
+import routes from "./src/rutas/index.js";
+import { stream, logger } from "./src/funciones/utilerias/logger.js";
+import { firestoreInstance } from "./src/middlewares/firebase.js";
 
 const puerto = process.env.PORT || 8080;
-const baseApi = process.env.BASE_API || '/api/service/v1';
+const baseApi = process.env.BASE_API || "/api/service/v1";
 const NUM_REQ_MAX_API = Number(process.env.NUM_REQ_MAX_API) || 25;
 
 const apiRequestLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minuto
-    max: NUM_REQ_MAX_API, // Límite de peticiones por IP por ventana de tiempo
-    message: async (req, res) => `Puede hacer solo ${NUM_REQ_MAX_API} peticiones/min.`,
-    skipFailedRequests: true,
-    keyGenerator(req, res) {
-        return !req.ip ?
-            req.socket.remoteAddress :
-            req.ip.replace(/:\d+[^:]*$/, '');
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: NUM_REQ_MAX_API, // Límite de peticiones por IP por ventana de tiempo
+  message: async (req, res) => `Puede hacer solo ${NUM_REQ_MAX_API} peticiones/min.`,
+  skipFailedRequests: true,
+  keyGenerator(req, res) {
+    return !req.ip ? req.socket.remoteAddress : req.ip.replace(/:\d+[^:]*$/, "");
+  },
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
 const app = express();
@@ -34,43 +31,45 @@ const app = express();
 app.use(apiRequestLimiter);
 app.use(firestoreInstance);
 
-app.use(helmet({
+app.use(
+  helmet({
     contentSecurityPolicy: {
-        useDefaults: false,
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "example.com"],
-            objectSrc: ["'none'"],
-            upgradeInsecureRequests: [],
-        },
+      useDefaults: false,
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "example.com"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: []
+      }
     },
     frameguard: true,
     xssFilter: true,
     noSniff: true,
-    hidePoweredBy: true,
-}));
+    hidePoweredBy: true
+  })
+);
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.disable('x-powered-by');
+app.disable("x-powered-by");
 app.use(httpContext.middleware);
 
 app.use(function (req, res, next) {
-    const uuidReq = req.headers.idTrackingReq ? req.headers.idTrackingReq : uuid.v1();
-    res.setHeader('idTrackingReq', uuidReq);
-    httpContext.set('idTrackingReq', uuidReq);
-    httpContext.set('nombre_aplicativo', req.headers.nombre_aplicativo);
-    httpContext.set('identificador_usuario', req.headers.identificador_usuario);
-    next();
+  const uuidReq = req.headers.idTrackingReq ? req.headers.idTrackingReq : uuid.v1();
+  res.setHeader("idTrackingReq", uuidReq);
+  httpContext.set("idTrackingReq", uuidReq);
+  httpContext.set("nombre_aplicativo", req.headers.nombre_aplicativo);
+  httpContext.set("identificador_usuario", req.headers.identificador_usuario);
+  next();
 });
 
-morgan.token('header', (req) => JSON.stringify(req.headers));
-morgan.token('body', (req) => JSON.stringify(req.body));
+morgan.token("header", (req) => JSON.stringify(req.headers));
+morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }));
 
 app.use(baseApi, routes);
-//logger.info("baseApi", baseApi);
+// logger.info("baseApi", baseApi);
 
 app.listen(puerto, () => logger.info(`Servicio listo en el puerto : ${puerto}`));
 
