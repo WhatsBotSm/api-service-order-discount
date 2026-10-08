@@ -1,144 +1,65 @@
-pipeline {
-    agent any
-    triggers {
-        githubPush()
-    }
-    environment {
-        SERVER = 'stagedev'
-		BRANCH_NAME = 'stage-dev'
-        NAME_REPO = 'api-service-order-discount'
-        IMAGE_NAME = 'api-svc-discount'
-        CONTAINER_NAME = 'api-discount'
-        REMOTE_PORT = '22'
-        REMOTE_PATH = '/home'
-        REMOTE_SERVER = '192.168.1.98'
-        REMOTE_USER = 'stagedev'
-        SSH_CREDENTIALS_ID = 'SSH-DEVST'
-    }
-    stages {
-        stage('Limpieza del Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-        stage('Checkout') {
-            steps {
-                script {
-                    git branch: "${BRANCH_NAME}", credentialsId: "USER_GH", url: "https://github.com/WhatsBotSm/${NAME_REPO}"
-                }
-            }
-        }
-        stage('Empaquetar') {
-            steps {
-                script {
-                    sh """
-                        echo "Creando el archivo tar para ${NAME_REPO}..."
-                        # Empaquetar solo el contenido del repo (el workspace actual)
-                        tar -czf ../${NAME_REPO}.tar.gz -C . .
-                    """
-                }
-            }
-        }
-        stage('Validar creación del archivo tar') {
-            steps {
-                script {
-                    def fileExists = sh(script: "test -f ../${NAME_REPO}.tar.gz && echo 'exists' || echo 'not found'", returnStdout: true).trim()
-                    if (fileExists == "not found") {
-                        error "El archivo tar no se ha creado. Verifica los errores en la etapa de empaquetado."
-                    }
-                }
-            }
-        }
-        stage('Enviar a servidor remoto') {
-            steps {
-                script {
-                    def rPathDeploy = "${REMOTE_PATH}/${SERVER}/deploy"
-                    withCredentials([sshUserPrivateKey(credentialsId: SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
-                        sh """
-                            ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no -p ${REMOTE_PORT} ${REMOTE_USER}@${REMOTE_SERVER} "mkdir -p ${rPathDeploy}"
-                            scp -i "\$SSH_KEY" -P ${REMOTE_PORT} ../${NAME_REPO}.tar.gz ${REMOTE_USER}@${REMOTE_SERVER}:${rPathDeploy}
-                        """
-                    }
-                }
-            }
-        }
-        stage('Despliegue en servidor remoto') {
-			steps {
-				script {
-				    def rPathDeploy = "${REMOTE_PATH}/${SERVER}/deploy/"
-                    def imageName = "${IMAGE_NAME}:${BRANCH_NAME}"
-                    def containerName = "${CONTAINER_NAME}"
-					def envVars = [
-                        NODE_ENV: 'stagedev',
-                        PORT: '7005',
-                        DB_HOST: '192.168.1.98',
-                        DB_NAME: 'whatsbotsm',
-                        DB_USER: 'ltorres',
-                        DB_PASSWORD: 'pgpassworddev',
-                        DB_PORT: '5432',
-                        NUM_REQ_MAX_API: '100',
-                        BASE_API: '/api/descuento/v1',
-                        STORE_BOT: 'APPS_WBSM',
-                        USEFIRESTORE: 'true',
-                        API_URL_ADMIN: 'https://dev.whatsbot.com.mx/api/adminbot',
-                    ]
-					// Convierte variables de entorno a formato para Docker
-					def envVarsStr = envVars.collect { k, v -> "-e ${k}=${v}" }.join(' ')
-					def pathVolume = "${REMOTE_PATH}/${SERVER}/logs/${NAME_REPO}"
-                    def envVolume = "${pathVolume}:/app/logs"
+@Library('whatsbotsm-shared-lib') _
 
-					def sshCommands = """mkdir -p ${rPathDeploy}${NAME_REPO}
-						echo "Comprobación y parada del contenedor ${containerName}..."
-						if [ \$(docker ps -q -f "name=${containerName}") ]; then
-							docker stop ${containerName}
-							echo "Contenedor ${containerName} detenido."
-						else
-							echo "No hay contenedor en ejecución con el nombre ${containerName}."
-						fi
-						
-						echo "Eliminación del contenedor ${containerName}..."
-						if [ \$(docker ps -aq -f "name=${containerName}") ]; then
-							docker rm ${containerName}
-							echo "Contenedor ${containerName} eliminado."
-						else
-							echo "No hay contenedor detenido con el nombre ${containerName}."
-						fi
-						
-						echo "Comprobación de la existencia del archivo tar.gz..."        
-						if [ -f ${rPathDeploy}${NAME_REPO}.tar.gz ]; then
-							tar -xzf ${rPathDeploy}${NAME_REPO}.tar.gz -C ${rPathDeploy}${NAME_REPO}
-						else
-							echo "El archivo tar.gz no existe. Saliendo..."
-							exit 1
-						fi
-						
-						echo "Construcción y ejecución del contenedor Docker ${containerName}... ${envVarsStr}"
-						docker build --target production --no-cache -t ${imageName} ${rPathDeploy}${NAME_REPO}
-						mkdir -p ${pathVolume} && docker run --restart=always -d -p ${envVars.PORT}:${envVars.PORT} --name ${containerName} -v ${envVolume} ${envVarsStr} ${imageName}
-						
-						rm -f ${rPathDeploy}${NAME_REPO}.tar.gz
-					"""
-					
-                    withCredentials([sshUserPrivateKey(credentialsId: SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
-                        sh """
-						ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no -p ${REMOTE_PORT} ${REMOTE_USER}@${REMOTE_SERVER} << 'EOF'
-						${sshCommands}
-                        """
-                    }
+def envConfig = [
+    'stage-dev': [
+        sites:            [tecamac: '100.75.28.73',  texcoco: '100.75.19.175'],
+        vaultPath:        'API_SECRET_DEV',
+        remoteUser:       'stagedev',
+        sshCredentialsId: 'SSH-DEVST',
+    ],
+    'stage-qa': [
+        sites:            [tecamac: '100.75.59.237', texcoco: '100.75.218.76'],
+        vaultPath:        'API_SECRET_QA',
+        remoteUser:       'stageqa',
+        sshCredentialsId: 'SSH-QA',
+    ],
+    'stage-uat': [
+        sites:            [tecamac: '100.75.113.148', texcoco: '100.75.57.120'],
+        vaultPath:        'API_SECRET_UAT',
+        remoteUser:       'stageuat',
+        sshCredentialsId: 'SSH-UAT',
+    ],
+    'main': [
+        sites:            [tecamac: '100.75.96.90', texcoco: '100.75.36.226'],
+        vaultPath:        'API_SECRET_BOT',
+        remoteUser:       'bot',
+        sshCredentialsId: 'SSH-BOT',
+    ],
+]
 
-				}
-			}
-		}
-		stage('Limpiar imágenes Docker obsoletas') {
-            steps {
-                script {
-                withCredentials([sshUserPrivateKey(credentialsId: SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
-                        sh """
-						ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no -p ${REMOTE_PORT} ${REMOTE_USER}@${REMOTE_SERVER}  "docker image prune -f"
-                        """
-                    }
-                }
-            }
-        }
-    }
+def cfg = envConfig[env.BRANCH_NAME]
+if (!cfg) {
+    error("Rama sin configuracion: ${env.BRANCH_NAME}")
 }
+
+deployApp(
+    repoService:      'api-service-order-discount',
+    replicas: 1,
+    branch:           env.BRANCH_NAME,
+    sites:            cfg.sites,
+    vaultPath:        cfg.vaultPath,
+    remoteUser:       cfg.remoteUser,
+    sshCredentialsId: cfg.sshCredentialsId,
+    port:             '7005',
+
+    nginxRoute: [
+        path:          '/api/descuento/',
+        proxyPassPath: '/api/descuento/v1/',
+    ],
+
+    staticEnv: [
+        BASE_API:               '/api/descuento/v1',   // propio de este repo, no secreto
+        API_URL_ADMINBOT:       'http://apps-api-admin-bot_api-admin-bot:7000/api/adminbot/v1',
+    ],
+
+    vaultKeys: [
+        config: ['NODE_ENV', 'NUM_REQ_MAX_API',
+                 'ALGORITHM', 'ENCODE_RSA', 'CIFRADO_RSA', 'ENCODE_PRMS_CRP',
+                 'STORE_BOT', 'ID_ALERT', 'URL_RTDB'],
+        dbpool: ['DB_NAME', 'DB_USER', 'DB_PASSWORD'],
+        saas:   ['SAAS_API_URL', 'SAAS_API_TOKEN', 'SAAS_CRUMB'],
+    ],
+
+    dryRun:   false,
+    runLint:  true,
+)

@@ -71,6 +71,15 @@ app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream })
 app.use(baseApi, routes);
 // logger.info("baseApi", baseApi);
 
+app.get("/health", (req, res) => {
+  return res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memoryUsage: process.memoryUsage()
+  });
+});
+
 app.listen(puerto, () => logger.info(`Servicio listo en el puerto : ${puerto}`));
 
 export default app;
