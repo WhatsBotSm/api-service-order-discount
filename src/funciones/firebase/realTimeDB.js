@@ -1,134 +1,140 @@
-const STORE_BOT = process.env.STORE_BOT || "STORE_BOT";
 import { aclaraText, ofuscaText } from "../utilerias/RSABot.js";
+const STORE_BOT = process.env.STORE_BOT || "STORE_BOT";
+
+const errorDoc = "Error al obtener el documento:";
+const errorAddDoc = "El nombre de la colección y el ID del documento deben ser cadenas no vacías.";
+
 class RealtimeDatabase {
-    constructor(db, useRealtimeDB = true) {
-        this.db = db;
-        this.useRealtimeDB = useRealtimeDB;
+  constructor(db, useRealtimeDB = true) {
+    this.db = db;
+    this.useRealtimeDB = useRealtimeDB;
+  }
+
+  async addDoc(collection, docId, doc) {
+    try {
+      if (this.useRealtimeDB === "false") return;
+      if (!collection || !docId) {
+        throw new Error(errorAddDoc);
+      }
+      // console.log('Collection:', collection);
+      // console.log('DocId:', docId);
+
+      const path = `${collection}/${docId}`;
+      const ref = this.db.ref(path);
+
+      const snapshot = await ref.once("value");
+      let tmpDoc = { ...doc, docId };
+      if (snapshot.exists()) {
+        // console.log('El documento ya existe');
+        const rs = snapshot.val();
+        tmpDoc = { ...tmpDoc, ...rs };
+      }
+
+      await ref.set(tmpDoc);
+      // console.log('Documento agregado exitosamente');
+      return tmpDoc;
+    } catch (error) {
+      console.error("Error al agregar el documento:", error);
     }
+  }
 
-    async addDoc(collection, docId, doc) {
-        try {
-            if (this.useRealtimeDB === "false") return;
-            if (!collection || !docId) {
-                throw new Error('El nombre de la colección y el ID del documento deben ser cadenas no vacías.');
-            }
-            // console.log('Collection:', collection);
-            // console.log('DocId:', docId);
+  async getDocById(collection, docId) {
+    // console.log('getDocById', collection, docId);
+    try {
+      if (this.useRealtimeDB === "false") return;
+      if (!collection || !docId) {
+        throw new Error(errorAddDoc);
+      }
+      // console.log('Collection:', collection);
+      // console.log('DocId:', docId);
 
-            const path = `${collection}/${docId}`;
-            const ref = this.db.ref(path);
+      const path = `${collection}/${docId}`;
+      const ref = this.db.ref(path);
 
-            const snapshot = await ref.once('value');
-            let tmpDoc = { ...doc, docId };
-            if (snapshot.exists()) {
-                // console.log('El documento ya existe');
-                let rs = snapshot.val();
-                tmpDoc = { ...tmpDoc, ...rs };
-            }
-
-            await ref.set(tmpDoc);
-            // console.log('Documento agregado exitosamente');
-            return tmpDoc;
-        } catch (error) {
-            console.error('Error al agregar el documento:', error);
-            return;
-        }
+      const snapshot = await ref.once("value");
+      if (snapshot.exists()) {
+        return snapshot.val();
+      }
+      return null;
+    } catch (error) {
+      console.error(errorDoc, error);
+      throw error;
     }
+  }
 
-    async getDocById(collection, docId) {
-        // console.log('getDocById', collection, docId);
-        try {
-            if (this.useRealtimeDB === "false") return;
-            if (!collection || !docId) {
-                throw new Error('El nombre de la colección y el ID del documento deben ser cadenas no vacías.');
-            }
-            // console.log('Collection:', collection);
-            // console.log('DocId:', docId);
-
-            const path = `${collection}/${docId}`;
-            const ref = this.db.ref(path);
-
-            const snapshot = await ref.once('value');
-            if (snapshot.exists()) {
-                return snapshot.val();
-            }
-            return null;
-        } catch (error) {
-            console.error('Error al obtener el documento:', error);
-            throw error;
-        }
+  async getkeysRSA(phone) {
+    try {
+      const encodedPhone = ofuscaText(phone);
+      const path = `${STORE_BOT}/KEY_BOT/${encodedPhone}`;
+      const ref = this.db.ref(path);
+      // console.log('path:', path);
+      const snapshot = await ref.once("value");
+      if (snapshot.exists()) {
+        return snapshot.val();
+      }
+      return null;
+    } catch (error) {
+      console.error(errorDoc, error);
+      throw error;
     }
+  }
 
-    async getkeysRSA(phone) {
-        try {
-            const path = `${STORE_BOT}/KEY_BOT/${ofuscaText(`${phone}`)}`;
-            const ref = this.db.ref(path);
-            // console.log('path:', path);
-            const snapshot = await ref.once('value');
-            if (snapshot.exists()) {
-                return snapshot.val();
-            }
-            return null;
-        } catch (error) {
-            console.error('Error al obtener el documento:', error);
-            throw error;
-        }
+  async getCuentaBot(phone) {
+    try {
+      const encodedPhone = ofuscaText(phone);
+      const path = `CONFIGBOT/${encodedPhone}`;
+      const ref = this.db.ref(path);
+      // console.log('path:', path);
+      const snapshot = await ref.once("value");
+      if (snapshot.exists()) {
+        const conf = snapshot.val();
+        conf.cuenta.seedbot = conf?.cuenta?.seedbot ? aclaraText(conf.cuenta.seedbot) : "seedbot";
+        return conf.cuenta;
+      }
+      return null;
+    } catch (error) {
+      console.error(errorDoc, error);
+      throw error;
     }
-    async getCuentaBot(phone) {
-        try {
-            const path = `CONFIGBOT/${ofuscaText(`${phone}`)}`;
-            const ref = this.db.ref(path);
-            // console.log('path:', path);
-            const snapshot = await ref.once('value');
-            if (snapshot.exists()) {
-                let conf = snapshot.val();
-                conf.cuenta.seedbot = conf?.cuenta?.seedbot ? aclaraText(conf.cuenta.seedbot) : 'seedbot';
-                return conf.cuenta;
-            }
-            return null;
-        } catch (error) {
-            console.error('Error al obtener el documento:', error);
-            throw error;
-        }
+  }
+
+  async updateDoc(collection, docId, newVsnDoc) {
+    // console.log('updateDoc', collection, docId, newVsnDoc);
+    try {
+      if (this.useRealtimeDB === "false") return;
+      if (!collection || !docId) {
+        throw new Error(errorAddDoc);
+      }
+      // console.log('Collection:', collection);
+      // console.log('DocId:', docId);
+
+      const path = `${collection}/${docId}`;
+      const ref = this.db.ref(path);
+
+      await ref.update({ ...newVsnDoc, docId });
+      // console.log('Documento actualizado exitosamente');
+      return newVsnDoc;
+    } catch (error) {
+      console.error("Error al actualizar el documento:", error);
+      throw error;
     }
+  }
 
-    async updateDoc(collection, docId, newVsnDoc) {
-        // console.log('updateDoc', collection, docId, newVsnDoc);
-        try {
-            if (this.useRealtimeDB === "false") return;
-            if (!collection || !docId) {
-                throw new Error('El nombre de la colección y el ID del documento deben ser cadenas no vacías.');
-            }
-            // console.log('Collection:', collection);
-            // console.log('DocId:', docId);
+  async deleteDoc(collection, docId) {
+    // console.log('deleteDoc', collection, docId);
+    try {
+      if (this.useRealtimeDB === "false") return;
+      const path = `${collection}/${docId}`;
+      const ref = this.db.ref(path);
 
-            const path = `${collection}/${docId}`;
-            const ref = this.db.ref(path);
-
-            await ref.update({ ...newVsnDoc, docId });
-            // console.log('Documento actualizado exitosamente');
-            return newVsnDoc;
-        } catch (error) {
-            console.error('Error al actualizar el documento:', error);
-            throw error;
-        }
+      await ref.remove();
+      // console.log('Documento eliminado exitosamente');
+      return true;
+    } catch (error) {
+      console.error("Error al eliminar el documento:", error);
+      throw error;
     }
-
-    async deleteDoc(collection, docId) {
-        // console.log('deleteDoc', collection, docId);
-        try {
-            if (this.useRealtimeDB === "false") return;
-            const path = `${collection}/${docId}`;
-            const ref = this.db.ref(path);
-
-            await ref.remove();
-            // console.log('Documento eliminado exitosamente');
-            return true;
-        } catch (error) {
-            console.error('Error al eliminar el documento:', error);
-            throw error;
-        }
-    }
+  }
 }
 
 export default RealtimeDatabase;

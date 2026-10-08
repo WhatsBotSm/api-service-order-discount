@@ -1,7 +1,10 @@
 {
+  "env": {
+    "node": true,
+    "es2021": true
+  },
   "extends": [
     "standard",
-    "prettier",
     "eslint:recommended",
     "plugin:prettier/recommended",
     "plugin:sonarjs/recommended",
@@ -16,11 +19,31 @@
     "import"
   ],
   "parserOptions": {
-    "ecmaVersion": 2020
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
+  "ignorePatterns": [
+    "*.test.js",
+    "/ecosystem.config.js",
+    "/autoScaler.js",
+    "/vitest.config.js",
+    "*.yml"
+  ],
   "rules": {
-    "prettier/prettier": 0,
-    "sonarjs/cognitive-complexity": "error",
+    "complexity": [
+      "error",
+      {
+        "max": 30
+      }
+    ],
+    "no-new-promises": "off",
+    "camelcase": "off",
+    "no-console": "off",
+    "import/no-unresolved": "off",
+    "sonarjs/cognitive-complexity": [
+      "error",
+      30
+    ],
     "sonarjs/no-identical-expressions": "error",
     "promise/always-return": "error",
     "promise/no-return-wrap": "error",
