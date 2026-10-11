@@ -56,7 +56,9 @@ app.disable("x-powered-by");
 app.use(httpContext.middleware);
 
 app.use(function (req, res, next) {
-  const uuidReq = req.headers.idTrackingReq ? req.headers.idTrackingReq : uuid.v1();
+  // Sin idTrackingReq entrante: 32 hex aleatorios (formato trace-id W3C/OpenTelemetry;
+  // uuid v1 incluia la MAC del host y la hora).
+  const uuidReq = req.headers.idtrackingreq ? req.headers.idtrackingreq : uuid.v4().replace(/-/g, "");
   res.setHeader("idTrackingReq", uuidReq);
   httpContext.set("idTrackingReq", uuidReq);
   httpContext.set("nombre_aplicativo", req.headers.nombre_aplicativo);
@@ -66,7 +68,13 @@ app.use(function (req, res, next) {
 
 morgan.token("header", (req) => JSON.stringify(req.headers));
 morgan.token("body", (req) => JSON.stringify(req.body));
-app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }));
+// Sondas del healthcheck de Swarm (deployApp en jenkins-shared-lib: wget a
+// /health y a BASE_API cada 15s en cada replica): no se registran. Eran ~98%
+// del volumen de logs de la API y no dicen nada que el healthcheck no diga.
+const isHealthProbe = (req) =>
+  req.path === "/health" ||
+  (req.method === "GET" && (req.originalUrl === baseApi || req.originalUrl === `${baseApi}/`) && /^wget/i.test(req.headers["user-agent"] || ""));
+app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream, skip: isHealthProbe }));
 
 app.use(baseApi, routes);
 // logger.info("baseApi", baseApi);

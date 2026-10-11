@@ -33,6 +33,10 @@ export const logger = winston.createLogger({
 
 export const stream = {
   write: function (message) {
-    logger.info(message);
+    // morgan termina cada linea con "\n": sin trim, winston escribia una
+    // linea vacia extra por request (mismo criterio que api-auth-service).
+    const text = String(message || "").trim();
+    if (!text) return;
+    logger.info(text);
   }
 };
