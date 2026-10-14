@@ -7,6 +7,7 @@ export const ConsumirServicio = async (url, name) => {
   const nombre_aplicativo = httpContext.get("nombre_aplicativo");
   const identificador_usuario = httpContext.get("identificador_usuario");
   url.headers.idsession = token;
+  url.headers.idTrackingReq = httpContext.get("idTrackingReq");
   url.headers.nombre_aplicativo = nombre_aplicativo;
   url.headers.identificador_usuario = identificador_usuario;
   logger.info("Request: " + JSON.stringify(url) + " : " + token);

@@ -7,7 +7,7 @@ import * as uuid from "uuid";
 import httpContext from "express-http-context";
 import { rateLimit } from "express-rate-limit";
 import routes from "./src/rutas/index.js";
-import { stream, logger } from "./src/funciones/utilerias/logger.js";
+import { stream } from "./src/funciones/utilerias/logger.js";
 import { firestoreInstance } from "./src/middlewares/firebase.js";
 
 const puerto = process.env.PORT || 8080;
@@ -56,7 +56,9 @@ app.disable("x-powered-by");
 app.use(httpContext.middleware);
 
 app.use(function (req, res, next) {
-  const uuidReq = req.headers.idTrackingReq ? req.headers.idTrackingReq : uuid.v1();
+  // Sin idTrackingReq entrante: 32 hex aleatorios (formato trace-id W3C/OpenTelemetry;
+  // uuid v1 incluia la MAC del host y la hora).
+  const uuidReq = req.headers.idtrackingreq ? req.headers.idtrackingreq : uuid.v4().replace(/-/g, "");
   res.setHeader("idTrackingReq", uuidReq);
   httpContext.set("idTrackingReq", uuidReq);
   httpContext.set("nombre_aplicativo", req.headers.nombre_aplicativo);
@@ -66,11 +68,15 @@ app.use(function (req, res, next) {
 
 morgan.token("header", (req) => JSON.stringify(req.headers));
 morgan.token("body", (req) => JSON.stringify(req.body));
-app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream }));
-
+// Sondas del healthcheck de Swarm (deployApp en jenkins-shared-lib: wget a
+// /health y a BASE_API cada 15s en cada replica): no se registran. Eran ~98%
+// del volumen de logs de la API y no dicen nada que el healthcheck no diga.
+const isHealthProbe = (req) =>
+  req.path === "/health" ||
+  (req.method === "GET" && (req.originalUrl === baseApi || req.originalUrl === `${baseApi}/`) && /^wget/i.test(req.headers["user-agent"] || ""));
+app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream, skip: isHealthProbe }));
+app.use(firestoreInstance);
 app.use(baseApi, routes);
-// logger.info("baseApi", baseApi);
-
 app.get("/health", (req, res) => {
   return res.status(200).json({
     status: "OK",
@@ -79,7 +85,49 @@ app.get("/health", (req, res) => {
     memoryUsage: process.memoryUsage()
   });
 });
+app.use((err, req, res, next) => {
+  console.error("Error no manejado:", err.stack);
+  return res.status(500).json({
+    error: "Internal Server Error",
+    requestId: httpContext.get("idTrackingReq")
+  });
+});
 
-app.listen(puerto, () => logger.info(`Servicio listo en el puerto : ${puerto}`));
+process.on("SIGTERM", () => {
+  console.log("Recibido SIGTERM. Cerrando servidor...");
+  server.close(() => {
+    console.log("Servidor cerrado");
+  });
+});
+console.log(baseApi);
+const server = app
+  .listen(puerto, () => {
+    console.log(`Servicio listo en el puerto: ${puerto}`);
+    console.log(`Entorno: ${process.env.NODE_ENV || "development"}`);
+  })
+  .on("error", (err) => {
+    console.error("Error al iniciar servidor:", err);
+    throw err;
+  });
 
+server.on("connection", (socket) => {
+  socket.on("error", (err) => {
+    // Solo si la conexion falla (igual que las demas APIs): antes se escribia
+    // una linea por CADA conexion TCP, incluidas las del healthcheck.
+    console.log(`Nueva conexión desde ${socket.remoteAddress}:${socket.remotePort}`);
+    if (err.code === "ECONNRESET") {
+      console.error("ECONNRESET detected:", {
+        remoteAddress: socket.remoteAddress,
+        localPort: socket.localPort,
+        bytesWritten: socket.bytesWritten,
+        bytesRead: socket.bytesRead,
+        timeout: socket.timeout
+      });
+    }
+  });
+});
+
+// Ajustes de keep-alive 2026
+server.keepAliveTimeout = 60000;
+server.headersTimeout = 65000;
 export default app;

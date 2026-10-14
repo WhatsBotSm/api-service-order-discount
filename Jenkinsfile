@@ -1,29 +1,20 @@
 @Library('whatsbotsm-shared-lib') _
 
+// Sitios, usuario y credencial SSH de cada entorno: NO van aqui. Salen de
+// jenkins-shared-lib resources/whatsbotsm/sites.conf (whatsbotSites), la
+// unica lista de sitios; deployApp()/deployStaticSite() los toman por rama.
 def envConfig = [
     'stage-dev': [
-        sites:            [tecamac: '100.75.28.73',  texcoco: '100.75.19.175'],
         vaultPath:        'API_SECRET_DEV',
-        remoteUser:       'stagedev',
-        sshCredentialsId: 'SSH-DEVST',
     ],
     'stage-qa': [
-        sites:            [tecamac: '100.75.59.237', texcoco: '100.75.218.76'],
         vaultPath:        'API_SECRET_QA',
-        remoteUser:       'stageqa',
-        sshCredentialsId: 'SSH-QA',
     ],
     'stage-uat': [
-        sites:            [tecamac: '100.75.113.148', texcoco: '100.75.57.120'],
         vaultPath:        'API_SECRET_UAT',
-        remoteUser:       'stageuat',
-        sshCredentialsId: 'SSH-UAT',
     ],
     'main': [
-        sites:            [tecamac: '100.75.96.90', texcoco: '100.75.36.226'],
         vaultPath:        'API_SECRET_BOT',
-        remoteUser:       'bot',
-        sshCredentialsId: 'SSH-BOT',
     ],
 ]
 
@@ -36,10 +27,7 @@ deployApp(
     repoService:      'api-service-order-discount',
     replicas: 1,
     branch:           env.BRANCH_NAME,
-    sites:            cfg.sites,
     vaultPath:        cfg.vaultPath,
-    remoteUser:       cfg.remoteUser,
-    sshCredentialsId: cfg.sshCredentialsId,
     port:             '7005',
 
     nginxRoute: [
