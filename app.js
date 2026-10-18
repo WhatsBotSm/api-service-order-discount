@@ -1,4 +1,5 @@
 import "./src/configuraciones/config_api.js";
+import { iniciarReporteErrores, manejadorErroresExpress } from "./src/funciones/utilerias/reporteErrores.js";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -9,6 +10,9 @@ import { rateLimit } from "express-rate-limit";
 import routes from "./src/rutas/index.js";
 import { stream } from "./src/funciones/utilerias/logger.js";
 import { firestoreInstance } from "./src/middlewares/firebase.js";
+
+// Errores a GlitchTip solo con SENTRY_DSN
+iniciarReporteErrores();
 
 const puerto = process.env.PORT || 8080;
 const baseApi = process.env.BASE_API || "/api/service/v1";
@@ -77,6 +81,9 @@ const isHealthProbe = (req) =>
 app.use(morgan(':status ":method :url"  :req[header] :header :body', { stream, skip: isHealthProbe }));
 app.use(firestoreInstance);
 app.use(baseApi, routes);
+manejadorErroresExpress(app);
+// logger.info("baseApi", baseApi);
+
 app.get("/health", (req, res) => {
   return res.status(200).json({
     status: "OK",
