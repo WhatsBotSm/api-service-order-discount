@@ -13,6 +13,9 @@ export const iniciarReporteErrores = ({ env = process.env, Sentry = SentrySdk } 
     Sentry.init({
       dsn: env.SENTRY_DSN,
       environment: env.SENTRY_ENVIRONMENT || env.NODE_ENV || "local",
+      // Varias APIs en el mismo proyecto de GlitchTip (back-api): cada error dice de cual es.
+      serverName: env.SENTRY_SERVICE || env.npm_package_name || undefined,
+      initialScope: { tags: { service: env.SENTRY_SERVICE || env.npm_package_name || "back-api" } },
       sendDefaultPii: false,
       tracesSampleRate: 0,
       skipOpenTelemetrySetup: true
