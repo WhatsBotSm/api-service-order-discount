@@ -1,6 +1,7 @@
 // URL's
 export const ORDER = {
-  URL_ADMIN: process.env.API_URL_ADMIN
+  // deployApp (Jenkinsfile) solo define API_URL_ADMINBOT: sin el respaldo, verificaToken no resuelve el phone del bot
+  URL_ADMIN: process.env.API_URL_ADMIN || process.env.API_URL_ADMINBOT
 };
 
 const idfrUsuario = "whts-core";

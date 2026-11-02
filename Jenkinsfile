@@ -25,6 +25,8 @@ if (!cfg) {
 
 deployApp(
     repoService:      'api-service-order-discount',
+    // Errores a GlitchTip: DSN del entorno en jenkins-shared-lib resources/whatsbotsm/glitchtip.conf
+    glitchtip:        'back-api',
     replicas: 1,
     branch:           env.BRANCH_NAME,
     vaultPath:        cfg.vaultPath,
