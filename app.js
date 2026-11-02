@@ -73,15 +73,26 @@ app.use(function (req, res, next) {
 // Credenciales fuera del log de peticiones (va a Loki): antes se registraban completos el
 // idsession (JWT del bot), x-internal-token y las contraseñas/OTP del cuerpo.
 const SENSITIVE_KEYS = new Set([
-  "idsession", "x-internal-token", "authorization", "cookie", "stripe-signature",
-  "password", "passbot", "passw_user", "newpassword", "new_password", "otp", "token", "tokenbot", "seedbot", "refresh_token"
+  "idsession",
+  "x-internal-token",
+  "authorization",
+  "cookie",
+  "stripe-signature",
+  "password",
+  "passbot",
+  "passw_user",
+  "newpassword",
+  "new_password",
+  "otp",
+  "token",
+  "tokenbot",
+  "seedbot",
+  "refresh_token"
 ]);
 const redact = (value, depth = 0) => {
   if (!value || typeof value !== "object" || depth > 4) return value;
   if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
-  return Object.fromEntries(
-    Object.entries(value).map(([k, v]) => [k, SENSITIVE_KEYS.has(k.toLowerCase()) ? "[REDACTED]" : redact(v, depth + 1)])
-  );
+  return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, SENSITIVE_KEYS.has(k.toLowerCase()) ? "[REDACTED]" : redact(v, depth + 1)]));
 };
 morgan.token("header", (req) => JSON.stringify(redact(req.headers)));
 morgan.token("body", (req) => JSON.stringify(redact(req.body)));
