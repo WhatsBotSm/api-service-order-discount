@@ -50,6 +50,10 @@ deployApp(
         saas:   ['SAAS_API_URL', 'SAAS_API_TOKEN', 'SAAS_CRUMB'],
     ],
 
+    // Caché L2 en el Valkey del sitio (src/servicios/cacheL1L2.js): REDIS_PASSWORD de
+    // Vault <vaultPath>/redis. Sin esto el L1+L2 trabaja solo en memoria (L1).
+    redisAuth: true,
+
     dryRun:   false,
     runLint:  true,
 )
