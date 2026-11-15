@@ -1,4 +1,5 @@
 import { aclaraText, ofuscaText } from "../utilerias/RSABot.js";
+import { callFnCache } from "../../servicios/CacheCircuitBreaker.js";
 const STORE_BOT = process.env.STORE_BOT || "STORE_BOT";
 
 const errorDoc = "Error al obtener el documento:";
@@ -80,22 +81,31 @@ class RealtimeDatabase {
   }
 
   async getCuentaBot(phone) {
-    try {
-      const encodedPhone = ofuscaText(phone);
-      const path = `CONFIGBOT/${encodedPhone}`;
-      const ref = this.db.ref(path);
-      // console.log('path:', path);
-      const snapshot = await ref.once("value");
-      if (snapshot.exists()) {
-        const conf = snapshot.val();
-        conf.cuenta.seedbot = conf?.cuenta?.seedbot ? aclaraText(conf.cuenta.seedbot) : "seedbot";
-        return conf.cuenta;
-      }
-      return null;
-    } catch (error) {
-      console.error(errorDoc, error);
-      throw error;
-    }
+    // Misma política que api-service-order: L1 en proceso; la cuenta trae seedbot, así que
+    // cacheL1L2 nunca la sube a Valkey (campos sensibles = solo L1).
+    const cacheKey = `getCuentaBotRTDB:${phone}`;
+    return callFnCache(
+      cacheKey,
+      async () => {
+        try {
+          const encodedPhone = ofuscaText(phone);
+          const path = `CONFIGBOT/${encodedPhone}`;
+          const ref = this.db.ref(path);
+          // console.log('path:', path);
+          const snapshot = await ref.once("value");
+          if (snapshot.exists()) {
+            const conf = snapshot.val();
+            conf.cuenta.seedbot = conf?.cuenta?.seedbot ? aclaraText(conf.cuenta.seedbot) : "seedbot";
+            return conf.cuenta;
+          }
+          return null;
+        } catch (error) {
+          console.error(errorDoc, error);
+          throw error;
+        }
+      },
+      { ttl: 55 * 60 * 1000 }
+    );
   }
 
   async updateDoc(collection, docId, newVsnDoc) {
