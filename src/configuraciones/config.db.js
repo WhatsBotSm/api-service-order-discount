@@ -24,6 +24,11 @@ const IDLE_IN_TX_TIMEOUT_MS = dbConfig?.idle_in_transaction_session_timeout || 6
 
 // Cliente (node-postgres). Estas SI son claves directas validas.
 const CLIENT_TIMEOUTS = {
+  // Zona de la sesión: la misma que el bot (WhatsBotSm conexion.js) para que las columnas
+  // timestamp SIN zona se escriban/lean en hora de México en todos los servicios. TimeZone sí
+  // pasa por 'options' (PgBouncer lo rastrea por cliente); statement_timeout & cía. no.
+  options: `-c timezone=${process.env.PG_TIMEZONE || "America/Mexico_City"}`,
+
   // Si una query no responde a tiempo, node la aborta y DESTRUYE la conexion,
   // evitando que quede colgada reteniendo un slot del pool.
   query_timeout: dbConfig?.query_timeout || 10000,

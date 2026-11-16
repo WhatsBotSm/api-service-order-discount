@@ -1,6 +1,8 @@
 // Servicio para Firestore
 const errorCollection = "Collection name and document ID must be non-empty strings.";
 
+// gRPC ALREADY_EXISTS (6): create() sobre un doc que ya existe.
+const yaExiste = (error) => error?.code === 6 || /ALREADY_EXISTS/i.test(error?.message || "");
 class Firestore {
   constructor(db, UseFirestore) {
     this.db = db;
@@ -22,14 +24,16 @@ class Firestore {
       const docRef = this.db.collection(collection).doc(docIdString);
       // console.log('Document Reference:', docRef.path);
 
-      const docSnapshot = await docRef.get();
-      if (docSnapshot.exists) {
-        // console.log('Document already exists');
-        return docSnapshot.data();
-      }
-
+      // Sin lectura previa: create() es una sola escritura y falla con ALREADY_EXISTS si el doc ya
+      // está; solo entonces se lee para devolver el existente (mismo contrato que antes).
       const tmpDoc = { ...doc, docId };
-      await docRef.set(tmpDoc);
+      try {
+        await docRef.create(tmpDoc);
+      } catch (error) {
+        if (!yaExiste(error)) throw error;
+        // console.log('Document already exists');
+        return (await docRef.get()).data();
+      }
       // console.log('Doc added successfully');
       return tmpDoc;
     } catch (error) {
